@@ -1,571 +1,467 @@
 /* ==========================================================================
-   Funcționalitățile interactive ale site-ului
+   Funcționalitățile paginilor
    ========================================================================== */
 (function () {
   "use strict";
   var $ = SOI.$, $$ = SOI.$$, esc = SOI.esc;
 
-  /* =========================================================
-     1. Test de eligibilitate
-     ========================================================= */
-  function initEligibilitate() {
-    var host = $("[data-eligibilitate]");
-    if (!host) return;
-    var list = $("[data-elig-list]", host);
-    var out  = $("[data-elig-result]", host);
-    var bar  = $("[data-elig-bar]", host);
+  /* ---------- donații locale (demo): sume adăugate de vizitator ---------- */
+  function donatiiLocale() { return SOI.store.get("soi-donatii", {}); }
+  function stransTotal(caz) { return caz.strans + (donatiiLocale()[caz.slug] || 0); }
+  function pct(caz) { return Math.min(100, Math.round(stransTotal(caz) / caz.target * 100)); }
+  function cazDupaSlug(slug) {
+    return SOI.CAZURI.filter(function (c) { return c.slug === slug; })[0] || null;
+  }
 
-    list.innerHTML = SOI.CRITERII.map(function (c, i) {
-      return '<label class="check" data-crit="' + c.id + '">' +
-        '<input type="checkbox" data-blocant="' + (c.blocant ? "1" : "0") + '" aria-describedby="crit-' + i + '">' +
-        '<span id="crit-' + i + '">' + esc(c.text) + (c.blocant ? ' <span class="badge badge--accent">obligatoriu</span>' : '') + '</span>' +
-        '</label>';
+  /* ---------- card de caz (folosit peste tot) ---------- */
+  function cardCaz(c, extraClass) {
+    var p = pct(c), gata = !c.activ || p >= 100;
+    return '<article class="card card--hover case-card ' + (extraClass || "") + '">' +
+      '<a class="case-card__media" href="caz.html?c=' + esc(c.slug) + '" aria-label="' + esc(c.nume) + '">' +
+        (gata ? '<span class="ribbon ribbon--done">Reușit</span>'
+              : (c.urgent ? '<span class="ribbon">Urgent</span>' : "")) +
+        SOI.imgSauInitiale("assets/img/cazuri/" + c.slug + ".jpg", "Fotografia campaniei " + c.nume, SOI.initiale(c.nume)) +
+      '</a>' +
+      '<div class="case-card__body">' +
+        '<h3><a href="caz.html?c=' + esc(c.slug) + '">' + esc(c.nume) + ', ' + c.varsta + ' ani</a></h3>' +
+        '<p class="case-card__dx">' + esc(c.diagnostic) + ' · ' + esc(c.oras) + '</p>' +
+        '<div class="progress-line' + (gata ? " progress-line--done" : "") + '" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '" aria-label="Progres strângere">' +
+          '<i data-pct="' + p + '"></i></div>' +
+        '<div class="progress-meta"><span><strong>' + SOI.bani(stransTotal(c)) + '</strong> strânși</span>' +
+          '<span class="pm-goal">' + p + '% din ' + SOI.bani(c.target) + '</span></div>' +
+        '<div class="case-card__foot">' +
+          '<span class="badge">' + c.donatori + ' donatori</span>' +
+          '<a class="btn btn--sm" href="caz.html?c=' + esc(c.slug) + '#doneaza">' + (gata ? "Vezi povestea" : "Donează") + '</a>' +
+        '</div>' +
+      '</div></article>';
+  }
+
+  /* =========================================================
+     ACASĂ
+     ========================================================= */
+  function initAcasa() {
+    var heroHost = $("[data-hero-slider]");
+    if (!heroHost) return;
+
+    /* --- slide-uri hero --- */
+    var urgente = SOI.CAZURI.filter(function (c) { return c.activ && c.urgent; });
+    var primul = urgente[0];
+    var slides = [
+      { tag: "Împreună pentru inimi mici", titlu: 'Fiecare inimă merită <span class="shimmer-text">să bată</span>.',
+        text: "Strângem fonduri pentru operațiile pe cord ale copiilor din familii care nu și le pot permite. 100% transparent, caz cu caz.",
+        cta: [["cazuri.html", "Vezi cazurile active", ""], ["doneaza.html", "Donează acum", "btn--light"]],
+        img: "assets/img/slides/1.jpg", grad: "linear-gradient(130deg,#1c060a 10%,#a30d1d 65%,#e41127)" },
+      primul && { tag: "Caz urgent", titlu: esc(primul.nume) + " are nevoie de tine <em>acum</em>.",
+        text: esc(primul.diagnostic) + ". S-au strâns " + SOI.bani(stransTotal(primul)) + " din " + SOI.bani(primul.target) + " — fiecare zi contează.",
+        cta: [["caz.html?c=" + primul.slug + "#doneaza", "Donează pentru " + esc(primul.nume), ""], ["caz.html?c=" + primul.slug, "Citește povestea", "btn--light"]],
+        img: "assets/img/slides/2.jpg", grad: "linear-gradient(130deg,#0c0506 10%,#5e0c15 60%,#c60e21)" },
+      { tag: "Nu te costă nimic", titlu: 'Redirecționează <span class="hl-amber">3,5%</span> din impozit.',
+        text: "Statul îți oprește oricum impozitul. Tu decizi unde ajunge o parte din el: completezi formularul 230 în 2 minute, noi facem restul.",
+        cta: [["doneaza.html#trei-cinci", "Completează formularul", ""], ["doneaza.html#firme", "Ești firmă? 20%", "btn--light"]],
+        img: "assets/img/slides/3.jpg", grad: "linear-gradient(130deg,#1c060a,#0e36bd 75%,#1142e4)" }
+    ].filter(Boolean);
+
+    $(".slider__track", heroHost).innerHTML = slides.map(function (s) {
+      return '<div class="slider__slide"><div class="hero-slide">' +
+        '<div class="hero-slide__bg" style="background:' + s.grad + '">' +
+          '<img src="' + s.img + '" alt="" loading="eager" onerror="this.remove()">' +
+        '</div>' +
+        '<div class="hero-slide__in">' +
+          '<span class="hero-slide__tag">' + s.tag + '</span>' +
+          '<h2>' + s.titlu + '</h2><p>' + s.text + '</p>' +
+          '<div class="row">' + s.cta.map(function (c) {
+            return '<a class="btn btn--lg ' + c[2] + '" href="' + c[0] + '">' + c[1] + '</a>';
+          }).join("") + '</div>' +
+        '</div></div></div>';
     }).join("");
+    new SOI.Slider(heroHost, { autoplay: 6500 });
 
-    function evaluate() {
-      var boxes = $$('input[type="checkbox"]', list);
-      var total = boxes.length;
-      var bifate = boxes.filter(function (b) { return b.checked; });
-      var blocanteLipsa = boxes.filter(function (b) { return b.dataset.blocant === "1" && !b.checked; });
-
-      boxes.forEach(function (b) { b.closest(".check").classList.toggle("is-on", b.checked); });
-
-      var pct = Math.round((bifate.length / total) * 100);
-      if (bar) { bar.style.width = pct + "%"; bar.parentElement.setAttribute("aria-valuenow", String(pct)); }
-
-      if (bifate.length === 0) { out.innerHTML = ""; return; }
-
-      if (blocanteLipsa.length === 0 && bifate.length === total) {
-        out.innerHTML = '<div class="alert alert--ok"><div><strong>Arăți ca un donator eligibil.</strong>' +
-          'Ai bifat toate criteriile. Următorul pas: alege un centru și fă-ți o programare. ' +
-          'Decizia finală aparține medicului din centru, după consultul și chestionarul medical.</div></div>' +
-          '<a class="btn mt-2" href="programare.html">Fă-ți programare<span aria-hidden="true">→</span></a>';
-      } else if (blocanteLipsa.length === 0) {
-        var recomandariLipsa = total - bifate.length;
-        out.innerHTML = '<div class="alert alert--warn"><div><strong>Probabil poți dona, cu mici ajustări.</strong>' +
-          'Criteriile obligatorii sunt îndeplinite, dar ' +
-          (recomandariLipsa === 1 ? 'o recomandare încă nu este bifată' : recomandariLipsa + ' recomandări încă nu sunt bifate') + '. ' +
-          'Odihnește-te, mănâncă ușor și hidratează-te înainte să vii.</div></div>' +
-          '<a class="btn btn--ghost mt-2" href="programare.html">Vezi programările disponibile</a>';
-      } else {
-        var n = blocanteLipsa.length;
-        out.innerHTML = '<div class="alert alert--err"><div><strong>Momentan nu îndeplinești ' +
-          (n === 1 ? 'un criteriu obligatoriu' : n + ' criterii obligatorii') + '.</strong>' +
-          'Asta nu înseamnă „niciodată” — cele mai multe restricții sunt temporare. ' +
-          'Verifică din nou după perioada de așteptare sau întreabă medicul centrului.</div></div>';
-      }
+    /* --- cazuri urgente: slider de carduri --- */
+    var cazHost = $("[data-cazuri-slider]");
+    if (cazHost) {
+      var active = SOI.CAZURI.filter(function (c) { return c.activ; })
+        .sort(function (a, b) { return (b.urgent - a.urgent) || (pct(a) - pct(b)); });
+      $(".slider__track", cazHost).innerHTML = active.map(function (c) {
+        return '<div class="slider__slide">' + cardCaz(c, c.urgent ? "shine-border" : "") + '</div>';
+      }).join("");
+      new SOI.Slider(cazHost, {
+        autoplay: 5200, arrows: false,
+        perView: function () { return window.innerWidth > 980 ? 3 : (window.innerWidth > 640 ? 2 : 1); }
+      });
+      SOI.initProgress(cazHost);
     }
 
-    list.addEventListener("change", evaluate);
-    var reset = $("[data-elig-reset]", host);
-    if (reset) reset.addEventListener("click", function () {
-      $$('input[type="checkbox"]', list).forEach(function (b) { b.checked = false; });
-      evaluate();
-    });
-    evaluate();
-  }
-
-  /* =========================================================
-     2. Calculator interval până la următoarea donare
-     ========================================================= */
-  function initInterval() {
-    var host = $("[data-interval]");
-    if (!host) return;
-    var input = $("[data-interval-date]", host);
-    var sex   = $("[data-interval-sex]", host);
-    var out   = $("[data-interval-out]", host);
-
-    function calc() {
-      if (!input.value) { out.innerHTML = '<p class="muted small">Alege data ultimei donări pentru a vedea când poți dona din nou.</p>'; return; }
-      var last = new Date(input.value + "T00:00:00");
-      if (isNaN(last.getTime())) return;
-      var luni = sex.value === "f" ? 4 : 3;
-      var next = new Date(last); next.setMonth(next.getMonth() + luni);
-      var today = new Date(); today.setHours(0, 0, 0, 0);
-      var zile = Math.ceil((next - today) / 86400000);
-
-      if (zile <= 0) {
-        out.innerHTML = '<div class="alert alert--ok"><div><strong>Poți dona din nou.</strong>' +
-          'Intervalul minim de ' + luni + ' luni a trecut pe ' + SOI.dateRO(next) + '.</div></div>' +
-          '<a class="btn mt-2" href="programare.html">Programează-te acum<span aria-hidden="true">→</span></a>';
-      } else {
-        out.innerHTML = '<div class="alert alert--warn"><div><strong>Mai ai ' + zile + ' ' + (zile === 1 ? 'zi' : 'zile') + '.</strong>' +
-          'Prima dată la care poți dona din nou este <strong>' + SOI.dateRO(next) + '</strong> ' +
-          '(interval minim de ' + luni + ' luni). Îți recomandăm să-ți notezi data.</div></div>' +
-          '<button class="btn btn--ghost mt-2" data-ics="' + next.toISOString().slice(0, 10) + '">Adaugă în calendar (.ics)</button>';
-      }
+    /* --- testimoniale --- */
+    var tHost = $("[data-testimoniale-slider]");
+    if (tHost) {
+      $(".slider__track", tHost).innerHTML = SOI.TESTIMONIALE.map(function (t) {
+        return '<div class="slider__slide"><figure class="quote-card">' +
+          '<blockquote>' + esc(t.text) + '</blockquote>' +
+          '<figcaption>— ' + esc(t.autor) + '</figcaption></figure></div>';
+      }).join("");
+      new SOI.Slider(tHost, { autoplay: 7000, arrows: false });
     }
-    input.addEventListener("change", calc);
-    sex.addEventListener("change", calc);
-    host.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-ics]"); if (!b) return;
-      downloadICS(b.dataset.ics, "Pot dona sânge din nou", "Intervalul minim de la ultima donare a trecut. salveazaoinima.ro");
-    });
-    calc();
+
+    construiesteMarquee();
   }
 
-  function downloadICS(dateISO, title, desc) {
-    var d = dateISO.replace(/-/g, "");
-    var end = new Date(dateISO + "T00:00:00"); end.setDate(end.getDate() + 1);
-    var d2 = end.toISOString().slice(0, 10).replace(/-/g, "");
-    var ics = [
-      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//salveazaoinima.ro//RO",
-      "BEGIN:VEVENT", "UID:" + d + "-soi@salveazaoinima.ro",
-      "DTSTART;VALUE=DATE:" + d, "DTEND;VALUE=DATE:" + d2,
-      "SUMMARY:" + title, "DESCRIPTION:" + desc,
-      "END:VEVENT", "END:VCALENDAR"
-    ].join("\r\n");
-    var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "donare-sange.ics";
-    document.body.appendChild(a); a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-    SOI.toast("Fișierul de calendar a fost descărcat.", "ok");
-  }
-
-  /* =========================================================
-     3. Compatibilitate grupe sanguine
-     ========================================================= */
-  function initCompatibilitate() {
-    var host = $("[data-compat]");
-    if (!host) return;
-    var pills = $("[data-compat-pills]", host);
-    var out   = $("[data-compat-out]", host);
-    var modeBtns = $$("[data-compat-mode]", host);
-    var tableHost = $("[data-compat-table]", host);
-    var state = { grupa: "0-", mod: "donez" };
-
-    pills.innerHTML = SOI.GRUPE.map(function (g) {
-      return '<button type="button" class="bg-pill" data-g="' + g + '" aria-pressed="false">' + g + '</button>';
+  /* ---------- marquee sponsori (orice pagină cu [data-marquee]) ---------- */
+  function construiesteMarquee() {
+    var m = $("[data-marquee]");
+    if (!m) return;
+    var toti = SOI.SPONSORI.principali.concat(SOI.SPONSORI.sustinatori);
+    var chips = toti.map(function (s) {
+      return '<span class="logo-chip"><span class="logo-chip__dot" aria-hidden="true"></span>' + esc(s.nume) + '</span>';
     }).join("");
-
-    function render() {
-      $$(".bg-pill", pills).forEach(function (b) {
-        var on = b.dataset.g === state.grupa;
-        b.classList.toggle("is-on", on);
-        b.setAttribute("aria-pressed", String(on));
-      });
-      modeBtns.forEach(function (b) {
-        var on = b.dataset.compatMode === state.mod;
-        b.classList.add("btn"); b.classList.toggle("btn--ghost", !on);
-        b.setAttribute("aria-pressed", String(on));
-      });
-
-      var lista, titlu, plasma;
-      if (state.mod === "donez") {
-        lista = SOI.DONEAZA_CATRE[state.grupa];
-        titlu = "Cu grupa <strong>" + state.grupa + "</strong> poți dona globule roșii către " + lista.length + " din 8 grupe:";
-        plasma = SOI.PLASMA_DONEAZA_CATRE[state.grupa];
-      } else {
-        lista = SOI.PRIMESTE_DE_LA[state.grupa];
-        titlu = "Cu grupa <strong>" + state.grupa + "</strong> poți primi globule roșii de la " + lista.length + " din 8 grupe:";
-        plasma = null;
-      }
-
-      var pillsHtml = SOI.GRUPE.map(function (g) {
-        var ok = lista.indexOf(g) !== -1;
-        return '<span class="bg-pill' + (ok ? " is-on" : "") + '" style="cursor:default' + (ok ? "" : ";opacity:.35") + '">' + g + '</span>';
-      }).join("");
-
-      var extra = "";
-      if (state.grupa === "0-" && state.mod === "donez") {
-        extra = '<div class="alert alert--ok mt-2"><div><strong>Ești donator universal.</strong>Globulele tale roșii pot fi transfuzate oricărui pacient. De aceea grupa 0 negativ este prima cerută în urgențe, când nu e timp pentru determinarea grupei.</div></div>';
-      } else if (state.grupa === "AB+" && state.mod === "primesc") {
-        extra = '<div class="alert alert--ok mt-2"><div><strong>Ești primitor universal.</strong>Poți primi globule roșii de la orice grupă sanguină.</div></div>';
-      } else if (state.grupa === "AB+" && state.mod === "donez") {
-        extra = '<div class="alert alert--warn"><div><strong>Plasma ta este universală.</strong>Deși globulele roșii AB+ merg doar către AB+, plasma ta poate ajunge la orice pacient. Întreabă centrul despre donarea de plasmă.</div></div>';
-      }
-
-      var plasmaHtml = plasma
-        ? '<p class="small muted mt-2">Plasmă: poți dona către ' + plasma.join(", ") + '.</p>' : "";
-
-      out.innerHTML = '<p class="mb-2">' + titlu + '</p><div class="bg-pills">' + pillsHtml + '</div>' +
-        plasmaHtml +
-        '<p class="small muted mt-2">Grupa ta apare în aproximativ <strong>' + (SOI.FRECVENTA[state.grupa] || "?") +
-        '%</strong> din populație.</p>' + extra;
-
-      renderTable();
-    }
-
-    function renderTable() {
-      var rows = SOI.GRUPE.map(function (donator) {
-        var tds = SOI.GRUPE.map(function (primitor) {
-          var ok = SOI.PRIMESTE_DE_LA[primitor].indexOf(donator) !== -1;
-          var hl = (state.mod === "donez" && donator === state.grupa) ||
-                   (state.mod === "primesc" && primitor === state.grupa);
-          return '<td class="' + (ok ? "yes" : "no") + (hl ? " hl" : "") + '">' + (ok ? "✓" : "·") + '</td>';
-        }).join("");
-        return '<tr><th scope="row">' + donator + '</th>' + tds + '</tr>';
-      }).join("");
-
-      tableHost.innerHTML = '<div class="table-wrap"><table>' +
-        '<caption class="sr-only">Compatibilitatea grupelor sanguine la transfuzia de globule roșii</caption>' +
-        '<thead><tr><th scope="col">Donator ↓ / Primitor →</th>' +
-        SOI.GRUPE.map(function (g) { return '<th scope="col">' + g + '</th>'; }).join("") +
-        '</tr></thead><tbody>' + rows + '</tbody></table></div>';
-    }
-
-    pills.addEventListener("click", function (e) {
-      var b = e.target.closest(".bg-pill"); if (!b) return;
-      state.grupa = b.dataset.g; render();
-    });
-    modeBtns.forEach(function (b) {
-      b.addEventListener("click", function () { state.mod = b.dataset.compatMode; render(); });
-    });
-    render();
+    m.innerHTML = '<div class="marquee__track">' + chips + chips + '</div>';
   }
 
   /* =========================================================
-     4. Centre de donare — căutare și filtrare
+     CAZURI — listă cu filtre
      ========================================================= */
-  function initCentre() {
-    var host = $("[data-centre]");
+  function initCazuri() {
+    var host = $("[data-cazuri]");
     if (!host) return;
-    var q      = $("[data-centre-q]", host);
-    var judet  = $("[data-centre-judet]", host);
-    var list   = $("[data-centre-list]", host);
-    var count  = $("[data-centre-count]", host);
-
-    var judete = SOI.CENTRE.map(function (c) { return c.judet; })
-      .filter(function (v, i, a) { return a.indexOf(v) === i; }).sort();
-    judet.innerHTML = '<option value="">Toate județele</option>' +
-      judete.map(function (j) { return '<option value="' + esc(j) + '">' + esc(j) + '</option>'; }).join("");
+    var q = $("[data-caz-q]", host), stare = $("[data-caz-stare]", host),
+        sortare = $("[data-caz-sort]", host), list = $("[data-caz-list]", host),
+        count = $("[data-caz-count]", host);
 
     function render() {
       var term = (q.value || "").trim().toLowerCase();
-      var jv = judet.value;
-      var res = SOI.CENTRE.filter(function (c) {
-        if (jv && c.judet !== jv) return false;
+      var st = stare.value;
+      var res = SOI.CAZURI.filter(function (c) {
+        if (st === "active" && !c.activ) return false;
+        if (st === "urgente" && !(c.activ && c.urgent)) return false;
+        if (st === "incheiate" && c.activ) return false;
         if (!term) return true;
-        return (c.nume + " " + c.oras + " " + c.judet).toLowerCase().indexOf(term) !== -1;
+        return (c.nume + " " + c.diagnostic + " " + c.oras).toLowerCase().indexOf(term) !== -1;
       });
-
-      count.textContent = res.length + (res.length === 1 ? " centru găsit" : " centre găsite");
-
-      if (!res.length) {
-        list.innerHTML = '<div class="empty"><p><strong>Niciun centru pentru căutarea ta.</strong></p>' +
-          '<p class="small">Încearcă alt județ sau șterge filtrele.</p></div>';
-        return;
-      }
-
-      list.innerHTML = res.map(function (c) {
-        return '<article class="card card--hover centre">' +
-          '<div class="centre__top"><h3>' + esc(c.nume) + '</h3>' +
-          '<span class="badge badge--accent">' + esc(c.judet) + '</span></div>' +
-          '<dl>' +
-          '<dt>Oraș</dt><dd>' + esc(c.oras) + '</dd>' +
-          '<dt>Program</dt><dd>' + esc(c.program) + '</dd>' +
-          '<dt>Telefon</dt><dd>' + esc(c.telefon) + '</dd>' +
-          (c.obs && c.obs !== "—" ? '<dt>Observații</dt><dd>' + esc(c.obs) + '</dd>' : "") +
-          '</dl>' +
-          '<div class="row mt-1">' +
-          '<a class="btn btn--sm" href="programare.html?centru=' + encodeURIComponent(c.id) + '">Programează-te aici</a>' +
-          '<a class="btn btn--sm btn--ghost" target="_blank" rel="noopener noreferrer" href="https://www.openstreetmap.org/search?query=' +
-            encodeURIComponent(c.nume + " " + c.oras) + '">Vezi pe hartă</a>' +
-          '</div></article>';
-      }).join("");
+      var s = sortare.value;
+      res.sort(function (a, b) {
+        if (s === "aproape") return pct(b) - pct(a);
+        if (s === "inceput") return pct(a) - pct(b);
+        if (s === "suma") return b.target - a.target;
+        return (b.urgent - a.urgent) || (b.activ - a.activ) || (pct(a) - pct(b)); /* relevanta */
+      });
+      count.textContent = res.length + (res.length === 1 ? " campanie" : " campanii");
+      list.innerHTML = res.length
+        ? res.map(function (c) { return cardCaz(c); }).join("")
+        : '<div class="empty"><p><strong>Nicio campanie pentru filtrele alese.</strong></p></div>';
+      SOI.initProgress(list);
     }
-
     q.addEventListener("input", SOI.debounce(render, 180));
-    judet.addEventListener("change", render);
-    var reset = $("[data-centre-reset]", host);
-    if (reset) reset.addEventListener("click", function () { q.value = ""; judet.value = ""; render(); });
+    stare.addEventListener("change", render);
+    sortare.addEventListener("change", render);
     render();
   }
 
   /* =========================================================
-     5. Cereri urgente
+     CAZ — pagina unei campanii
      ========================================================= */
-  var URG_ORD = { critica: 0, ridicata: 1, medie: 2 };
-  var URG_LABEL = { critica: "Critică", ridicata: "Ridicată", medie: "Medie" };
-  var URG_CLASS = { critica: "badge--err", ridicata: "badge--warn", medie: "badge" };
-
-  function cereri() {
-    var extra = SOI.store.get("soi-cereri", []);
-    return SOI.CERERI_SEED.concat(Array.isArray(extra) ? extra : []);
-  }
-
-  function initUrgente() {
-    var host = $("[data-urgente]");
+  function initCaz() {
+    var host = $("[data-caz-pagina]");
     if (!host) return;
-    var list  = $("[data-urg-list]", host);
-    var fg    = $("[data-urg-grupa]", host);
-    var fo    = $("[data-urg-oras]", host);
-    var fc    = $("[data-urg-compat]", host);
-    var count = $("[data-urg-count]", host);
+    var slug = new URLSearchParams(location.search).get("c");
+    var c = cazDupaSlug(slug) || SOI.CAZURI.filter(function (x) { return x.activ; })[0];
+    if (!c) return;
+    var p = pct(c), gata = !c.activ || p >= 100;
 
-    fg.innerHTML = '<option value="">Toate grupele</option>' +
-      SOI.GRUPE.map(function (g) { return '<option value="' + g + '">' + g + '</option>'; }).join("");
+    document.title = c.nume + " — campanie · Salvează o Inimă";
+    $("[data-caz-crumb]").textContent = c.nume;
 
-    function refreshOrase() {
-      var orase = cereri().map(function (c) { return c.oras; })
-        .filter(function (v, i, a) { return a.indexOf(v) === i; }).sort();
-      var cur = fo.value;
-      fo.innerHTML = '<option value="">Toate orașele</option>' +
-        orase.map(function (o) { return '<option value="' + esc(o) + '">' + esc(o) + '</option>'; }).join("");
-      fo.value = cur;
-    }
+    $("[data-caz-continut]").innerHTML =
+      '<div class="case-hero">' +
+        '<div>' +
+          '<div class="case-media">' +
+            (gata ? '<span class="ribbon ribbon--done">Suma a fost strânsă</span>' : (c.urgent ? '<span class="ribbon">Caz urgent</span>' : "")) +
+            SOI.imgSauInitiale("assets/img/cazuri/" + c.slug + ".jpg", "Fotografia campaniei " + c.nume, SOI.initiale(c.nume)) +
+          '</div>' +
+          '<h1 class="mt-3">' + esc(c.nume) + ', ' + c.varsta + ' ani</h1>' +
+          '<p class="lead mt-1">' + esc(c.diagnostic) + ' · ' + esc(c.oras) + '</p>' +
+          '<p class="mt-2" style="font-size:1.05rem">' + esc(c.poveste) + '</p>' +
+          '<div class="mt-3">' +
+            '<h3 class="mb-2">Actualizări</h3>' +
+            '<div class="timeline">' + c.updates.map(function (u) {
+              return '<div class="timeline__item"><div class="timeline__date">' +
+                SOI.dateRO(new Date(u.data + "T00:00:00")) + '</div>' +
+                '<div class="timeline__text">' + esc(u.text) + '</div></div>';
+            }).join("") + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<aside class="donate-box" id="doneaza">' +
+          '<div class="card' + (c.urgent && !gata ? " shine-border" : "") + '">' +
+            '<div class="progress-line' + (gata ? " progress-line--done" : "") + '" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '"><i data-pct="' + p + '"></i></div>' +
+            '<div class="progress-meta"><span><strong data-strans>' + SOI.bani(stransTotal(c)) + '</strong> strânși</span>' +
+              '<span class="pm-goal">țintă ' + SOI.bani(c.target) + '</span></div>' +
+            '<p class="small muted mt-1"><span data-pct-label>' + p + '</span>% · ' + c.donatori + ' donatori</p>' +
+            (gata
+              ? '<div class="alert alert--ok mt-2"><div><strong>Campania s-a încheiat cu succes.</strong>Mulțumim tuturor celor care au donat. Vezi celelalte cazuri active.</div></div>' +
+                '<a class="btn btn--block mt-2" href="cazuri.html">Cazuri care încă au nevoie</a>'
+              : '<form class="mt-3" data-doneaza-form>' +
+                  '<p class="small muted mb-1" style="font-weight:700">Alege suma donației</p>' +
+                  '<div class="amount-pills" data-sume></div>' +
+                  '<label class="field mt-2"><span>Sau altă sumă (€)</span>' +
+                    '<input class="input" type="number" min="1" step="1" name="suma" inputmode="numeric" placeholder="de ex. 75"></label>' +
+                  '<div class="impact mt-1" data-impact hidden></div>' +
+                  '<button class="btn btn--block btn--lg mt-2" type="submit">Donează<span aria-hidden="true"> ♥</span></button>' +
+                  '<p class="hint center">Demo — nicio plată reală nu este procesată.</p>' +
+                '</form>') +
+            '<div class="row mt-2" style="justify-content:center">' +
+              '<button class="btn btn--sm btn--ghost" type="button" data-share>Distribuie</button>' +
+              '<a class="btn btn--sm btn--ghost" href="doneaza.html#trei-cinci">Redirecționează 3,5%</a>' +
+            '</div>' +
+          '</div>' +
+        '</aside>' +
+      '</div>';
 
-    function render() {
-      var g = fg.value, o = fo.value, compatGrupa = fc.value;
-      var res = cereri().filter(function (c) {
-        if (g && c.grupa !== g) return false;
-        if (o && c.oras !== o) return false;
-        if (compatGrupa) {
-          /* pot ajuta acest pacient cu grupa mea? */
-          if (SOI.DONEAZA_CATRE[compatGrupa].indexOf(c.grupa) === -1) return false;
-        }
-        return true;
-      }).sort(function (a, b) {
-        var d = URG_ORD[a.urgenta] - URG_ORD[b.urgenta];
-        return d !== 0 ? d : a.zileRamase - b.zileRamase;
-      });
-
-      count.textContent = res.length + (res.length === 1 ? " cerere activă" : " cereri active");
-
-      if (!res.length) {
-        list.innerHTML = '<div class="empty"><p><strong>Nicio cerere pentru filtrele alese.</strong></p>' +
-          '<p class="small">Încearcă să elimini un filtru — nevoia de sânge există permanent.</p></div>';
-        return;
-      }
-
-      list.innerHTML = res.map(function (c) {
-        return '<article class="card card--hover req-card">' +
-          '<div class="blood-tag" aria-label="Grupa ' + c.grupa + '">' + c.grupa + '</div>' +
-          '<div><h3>' + esc(c.pacient) + '</h3>' +
-          '<p class="small muted">' + esc(c.nevoie) + '</p>' +
-          '<div class="row mt-1">' +
-            '<span class="badge ' + URG_CLASS[c.urgenta] + '">Urgență ' + URG_LABEL[c.urgenta] + '</span>' +
-            '<span class="badge">' + esc(c.spital) + ', ' + esc(c.oras) + '</span>' +
-            '<span class="badge">' + c.unitati + ' unități necesare</span>' +
-            '<span class="badge">' + c.zileRamase + ' ' + (c.zileRamase === 1 ? "zi" : "zile") + ' rămase</span>' +
-          '</div></div>' +
-          '<a class="btn btn--sm" href="programare.html?grupa=' + encodeURIComponent(c.grupa) +
-            '&amp;oras=' + encodeURIComponent(c.oras) + '">Vreau să ajut</a>' +
-          '</article>';
-      }).join("");
-    }
-
-    fc.innerHTML = '<option value="">Grupa mea (toate)</option>' +
-      SOI.GRUPE.map(function (g) { return '<option value="' + g + '">Am grupa ' + g + '</option>'; }).join("");
-
-    [fg, fo, fc].forEach(function (el) { el.addEventListener("change", render); });
-    var reset = $("[data-urg-reset]", host);
-    if (reset) reset.addEventListener("click", function () { fg.value = ""; fo.value = ""; fc.value = ""; render(); });
-
-    /* --- formular de adăugare cerere --- */
-    var form = $("[data-urg-form]", host);
+    /* sume + impact */
+    var SUME = [25, 50, 100, 250, 500];
+    var IMPACT = {
+      25: "acoperă o zi de medicație post-operatorie",
+      50: "acoperă un set de analize preoperatorii",
+      100: "acoperă o noapte de spitalizare pentru însoțitor",
+      250: "acoperă transportul familiei către clinică",
+      500: "acoperă o zi de terapie intensivă"
+    };
+    var form = $("[data-doneaza-form]", host);
     if (form) {
-      var gsel = $('[name="grupa"]', form);
-      gsel.innerHTML = SOI.GRUPE.map(function (g) { return '<option value="' + g + '">' + g + '</option>'; }).join("");
+      var pills = $("[data-sume]", form), inp = $('[name="suma"]', form), impact = $("[data-impact]", form);
+      pills.innerHTML = SUME.map(function (s) {
+        return '<button type="button" class="amount-pill" data-s="' + s + '">' + s + ' €</button>';
+      }).join("");
+      function alege(s) {
+        $$(".amount-pill", pills).forEach(function (b) { b.classList.toggle("is-on", +b.dataset.s === s); });
+        if (s && IMPACT[s]) { impact.hidden = false; impact.innerHTML = '<strong>' + s + ' €</strong> — ' + IMPACT[s] + '.'; }
+        else if (s) { impact.hidden = false; impact.innerHTML = '<strong>' + s + ' €</strong> — mulțumim din inimă.'; }
+        else impact.hidden = true;
+      }
+      pills.addEventListener("click", function (e) {
+        var b = e.target.closest(".amount-pill"); if (!b) return;
+        inp.value = b.dataset.s; alege(+b.dataset.s);
+      });
+      inp.addEventListener("input", function () { alege(parseInt(inp.value, 10) || 0); });
       form.addEventListener("submit", function (e) {
         e.preventDefault();
-        if (!SOI.validate(form)) { SOI.toast("Completează câmpurile obligatorii.", "err"); return; }
-        var fd = new FormData(form);
-        var nou = {
-          id: "u" + Date.now(),
-          grupa: fd.get("grupa"),
-          pacient: String(fd.get("pacient")).trim(),
-          spital: String(fd.get("spital")).trim(),
-          oras: String(fd.get("oras")).trim(),
-          nevoie: String(fd.get("nevoie")).trim() || "Necesar transfuzie",
-          unitati: Math.max(1, parseInt(fd.get("unitati"), 10) || 1),
-          urgenta: fd.get("urgenta"),
-          zileRamase: Math.max(1, parseInt(fd.get("zile"), 10) || 7)
-        };
-        var extra = SOI.store.get("soi-cereri", []);
-        extra.push(nou);
-        SOI.store.set("soi-cereri", extra);
-        form.reset();
-        refreshOrase(); render();
-        SOI.toast("Cererea a fost publicată pe listă.", "ok");
+        var s = parseInt(inp.value, 10);
+        if (!s || s < 1) { SOI.toast("Alege întâi o sumă.", "err"); inp.focus(); return; }
+        var d = donatiiLocale(); d[c.slug] = (d[c.slug] || 0) + s;
+        SOI.store.set("soi-donatii", d);
+        var np = pct(c);
+        $("[data-strans]", host).textContent = SOI.bani(stransTotal(c));
+        $("[data-pct-label]", host).textContent = np;
+        var barEl = $(".donate-box .progress-line > i", host);
+        barEl.dataset.pct = np; barEl.style.width = np + "%";
+        confetti();
+        SOI.toast("Mulțumim! Donația demo de " + s + " € a fost înregistrată.", "ok");
+        form.reset(); alege(0);
       });
     }
 
-    refreshOrase();
-    render();
-  }
-
-  /* =========================================================
-     6. Programare — formular în pași
-     ========================================================= */
-  function initProgramare() {
-    var host = $("[data-programare]");
-    if (!host) return;
-    var form   = $("[data-prog-form]", host);
-    var panels = $$("[data-step]", host);
-    var steps  = $$("[data-stepper] .stepper__i", host);
-    var btnPrev = $("[data-prog-prev]", host);
-    var btnNext = $("[data-prog-next]", host);
-    var btnSend = $("[data-prog-send]", host);
-    var sumHost = $("[data-prog-summary]", host);
-    var doneHost = $("[data-prog-done]", host);
-    var idx = 0;
-
-    /* populare selecturi */
-    var selCentru = $('[name="centru"]', form);
-    selCentru.innerHTML = '<option value="">Alege un centru…</option>' +
-      SOI.CENTRE.map(function (c) {
-        return '<option value="' + esc(c.id) + '">' + esc(c.nume) + " — " + esc(c.oras) + '</option>';
-      }).join("");
-
-    var selGrupa = $('[name="grupa"]', form);
-    selGrupa.innerHTML = '<option value="">Nu știu / se determină la centru</option>' +
-      SOI.GRUPE.map(function (g) { return '<option value="' + g + '">' + g + '</option>'; }).join("");
-
-    /* zile disponibile: următoarele 21 de zile lucrătoare */
-    var selData = $('[name="data"]', form);
-    (function () {
-      var opts = [], d = new Date(); d.setHours(0, 0, 0, 0);
-      var added = 0;
-      while (added < 21) {
-        d.setDate(d.getDate() + 1);
-        var wd = d.getDay();
-        if (wd === 0 || wd === 6) continue;
-        var iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-        opts.push('<option value="' + iso + '">' + SOI.dateRO(new Date(iso + "T00:00:00")) + '</option>');
-        added++;
-      }
-      selData.innerHTML = '<option value="">Alege ziua…</option>' + opts.join("");
-    })();
-
-    var selOra = $('[name="ora"]', form);
-    (function () {
-      var ore = [];
-      for (var h = 7; h <= 12; h++) {
-        ["00", "30"].forEach(function (m) {
-          if (h === 7 && m === "00") return;
-          if (h === 12 && m === "30") return;
-          ore.push(String(h).padStart(2, "0") + ":" + m);
+    /* share */
+    var shareBtn = $("[data-share]", host);
+    if (shareBtn) shareBtn.addEventListener("click", function () {
+      var data = { title: document.title, text: "Ajută-l pe " + c.nume + "!", url: location.href };
+      if (navigator.share) { navigator.share(data).catch(function () {}); return; }
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(location.href).then(function () {
+          SOI.toast("Linkul campaniei a fost copiat.", "ok");
         });
       }
-      selOra.innerHTML = '<option value="">Alege ora…</option>' +
-        ore.map(function (o) { return '<option value="' + o + '">' + o + '</option>'; }).join("");
-    })();
-
-    /* preselecție din querystring */
-    (function () {
-      var p = new URLSearchParams(location.search);
-      if (p.get("centru")) selCentru.value = p.get("centru");
-      if (p.get("grupa") && SOI.GRUPE.indexOf(p.get("grupa")) !== -1) selGrupa.value = p.get("grupa");
-      var oras = p.get("oras");
-      if (oras && !selCentru.value) {
-        var m = SOI.CENTRE.filter(function (c) { return c.oras === oras; })[0];
-        if (m) selCentru.value = m.id;
-      }
-    })();
-
-    function show(i) {
-      idx = Math.max(0, Math.min(i, panels.length - 1));
-      panels.forEach(function (p, n) { p.classList.toggle("hidden", n !== idx); });
-      steps.forEach(function (s, n) {
-        s.classList.toggle("is-on", n === idx);
-        s.classList.toggle("is-done", n < idx);
-      });
-      btnPrev.classList.toggle("hidden", idx === 0);
-      btnNext.classList.toggle("hidden", idx === panels.length - 1);
-      btnSend.classList.toggle("hidden", idx !== panels.length - 1);
-      if (idx === panels.length - 1) buildSummary();
-      var h = $("h2, h3", panels[idx]); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
-      host.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    function validStep() {
-      var ok = true;
-      $$("[data-required]", panels[idx]).forEach(function (el) {
-        var field = el.closest(".field") || el.parentElement;
-        var val = (el.type === "checkbox") ? el.checked : String(el.value || "").trim();
-        var bad = !val;
-        if (!bad && el.dataset.pattern) bad = !new RegExp(el.dataset.pattern).test(val);
-        field.classList.toggle("is-invalid", bad);
-        el.setAttribute("aria-invalid", String(bad));
-        if (bad && ok) { ok = false; try { el.focus(); } catch (e) {} }
-      });
-      return ok;
-    }
-
-    function buildSummary() {
-      var fd = new FormData(form);
-      var centru = SOI.CENTRE.filter(function (c) { return c.id === fd.get("centru"); })[0];
-      var rows = [
-        ["Nume", fd.get("nume")],
-        ["E-mail", fd.get("email")],
-        ["Telefon", fd.get("telefon")],
-        ["Grupa sanguină", fd.get("grupa") || "Se determină la centru"],
-        ["Centru", centru ? centru.nume + " — " + centru.oras : "—"],
-        ["Data", fd.get("data") ? SOI.dateRO(new Date(fd.get("data") + "T00:00:00")) : "—"],
-        ["Ora", fd.get("ora") || "—"],
-        ["Prima donare", fd.get("prima") ? "Da" : "Nu"]
-      ];
-      sumHost.innerHTML = '<div class="table-wrap"><table style="min-width:0"><tbody>' +
-        rows.map(function (r) {
-          return '<tr><th scope="row" style="width:38%">' + esc(r[0]) + '</th><td style="text-align:left">' + esc(r[1] || "—") + '</td></tr>';
-        }).join("") + '</tbody></table></div>';
-    }
-
-    btnNext.addEventListener("click", function () { if (validStep()) show(idx + 1); });
-    btnPrev.addEventListener("click", function () { show(idx - 1); });
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (!validStep()) { SOI.toast("Mai sunt câmpuri de completat.", "err"); return; }
-      var fd = new FormData(form);
-      var centru = SOI.CENTRE.filter(function (c) { return c.id === fd.get("centru"); })[0];
-      var rec = {
-        cod: "SOI-" + String(Date.now()).slice(-6),
-        nume: fd.get("nume"), email: fd.get("email"), telefon: fd.get("telefon"),
-        grupa: fd.get("grupa") || "necunoscută",
-        centru: centru ? centru.nume : "", oras: centru ? centru.oras : "",
-        data: fd.get("data"), ora: fd.get("ora")
-      };
-      var istoric = SOI.store.get("soi-programari", []);
-      istoric.push(rec);
-      SOI.store.set("soi-programari", istoric);
-
-      form.classList.add("hidden");
-      $("[data-stepper]", host).classList.add("hidden");
-      doneHost.classList.remove("hidden");
-      doneHost.innerHTML = '<div class="card center">' +
-        '<div class="card__icon" style="margin-inline:auto">✓</div>' +
-        '<h2 class="mb-2">Programarea ta este înregistrată</h2>' +
-        '<p class="lead">Cod programare: <strong>' + esc(rec.cod) + '</strong></p>' +
-        '<p class="mt-2">' + esc(rec.nume) + ', te așteptăm pe <strong>' +
-          esc(SOI.dateRO(new Date(rec.data + "T00:00:00"))) + '</strong> la ora <strong>' + esc(rec.ora) + '</strong>' +
-          (rec.centru ? ' la ' + esc(rec.centru) : "") + '.</p>' +
-        '<div class="alert alert--warn mt-3" style="text-align:left"><div><strong>Nu uita:</strong>' +
-          'buletinul, o masă ușoară înainte, multe lichide și fără alcool în ultimele 48 de ore.</div></div>' +
-        '<div class="row mt-3" style="justify-content:center">' +
-          '<button class="btn" data-prog-ics>Adaugă în calendar</button>' +
-          '<a class="btn btn--ghost" href="doneaza.html">Cum mă pregătesc</a>' +
-        '</div></div>';
-      doneHost.querySelector("[data-prog-ics]").addEventListener("click", function () {
-        downloadICS(rec.data, "Donare de sânge — " + rec.ora,
-          "Programare " + rec.cod + (rec.centru ? " la " + rec.centru : "") + ". Adu buletinul.");
-      });
-      doneHost.scrollIntoView({ behavior: "smooth", block: "center" });
-      SOI.toast("Programare confirmată: " + rec.cod, "ok");
     });
 
-    show(0);
+    /* alte cazuri */
+    var alte = SOI.CAZURI.filter(function (x) { return x.slug !== c.slug && x.activ; }).slice(0, 3);
+    var alteHost = $("[data-caz-alte]");
+    if (alteHost && alte.length) {
+      alteHost.innerHTML = '<h2 class="mb-3">Alți copii care așteaptă</h2>' +
+        '<div class="grid g3">' + alte.map(function (x) { return cardCaz(x); }).join("") + '</div>';
+    }
+
+    /* bara lipita jos pe mobil */
+    var sticky = $("[data-sticky-cta]");
+    if (sticky && !gata) {
+      sticky.innerHTML = '<div><strong>' + esc(c.nume) + '</strong> · <span class="small muted">' + p + '% strâns</span></div>' +
+        '<a class="btn btn--sm" href="#doneaza">Donează</a>';
+      sticky.classList.add("is-visible");
+    }
+
+    SOI.initProgress(host); SOI.reveal(host);
+  }
+
+  function confetti() {
+    if (SOI.reduced) return;
+    var cvs = document.createElement("canvas");
+    cvs.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:200";
+    cvs.width = innerWidth; cvs.height = innerHeight;
+    document.body.appendChild(cvs);
+    var ctx = cvs.getContext("2d");
+    var parts = [], colors = ["#e41127", "#1142e4", "#feedba", "#fde6e9", "#67c42c"];
+    for (var i = 0; i < 120; i++) {
+      parts.push({ x: innerWidth / 2, y: innerHeight * 0.6,
+        vx: (Math.random() - .5) * 14, vy: -Math.random() * 13 - 4,
+        s: Math.random() * 7 + 3, c: colors[i % colors.length], r: Math.random() * Math.PI });
+    }
+    var t = 0;
+    (function tick() {
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      parts.forEach(function (p) {
+        p.x += p.vx; p.y += p.vy; p.vy += .35; p.r += .1;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * .6);
+        ctx.restore();
+      });
+      if (++t < 90) requestAnimationFrame(tick); else cvs.remove();
+    })();
   }
 
   /* =========================================================
-     7. Întrebări frecvente — căutare + categorii
+     DONEAZĂ — tab-uri: donație / 3,5% / 20% firme
+     ========================================================= */
+  function initDoneaza() {
+    var host = $("[data-doneaza-pagina]");
+    if (!host) return;
+
+    /* tab-uri */
+    var tabs = $$(".tab", host), panes = $$("[data-pane]", host);
+    function arata(id) {
+      tabs.forEach(function (t) { t.classList.toggle("is-on", t.dataset.tab === id); t.setAttribute("aria-selected", String(t.dataset.tab === id)); });
+      panes.forEach(function (p) { p.classList.toggle("hidden", p.dataset.pane !== id); });
+    }
+    tabs.forEach(function (t) { t.addEventListener("click", function () { arata(t.dataset.tab); history.replaceState(null, "", "#" + t.dataset.tab); }); });
+    var h = location.hash.replace("#", "");
+    arata(["donatie", "trei-cinci", "firme"].indexOf(h) !== -1 ? h : "donatie");
+
+    /* — donatie generala: alegere caz — */
+    var sel = $('[name="caz"]', host);
+    if (sel) {
+      sel.innerHTML = '<option value="">Unde e nevoia mai mare (recomandat)</option>' +
+        SOI.CAZURI.filter(function (c) { return c.activ; }).map(function (c) {
+          return '<option value="' + c.slug + '">' + esc(c.nume) + ' — ' + esc(c.diagnostic) + '</option>';
+        }).join("");
+    }
+    var fdon = $("[data-form-donatie]", host);
+    if (fdon) fdon.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!SOI.validate(fdon)) { SOI.toast("Completează câmpurile obligatorii.", "err"); return; }
+      var slug = sel.value || SOI.CAZURI.filter(function (c) { return c.activ && c.urgent; })[0].slug;
+      location.href = "caz.html?c=" + encodeURIComponent(slug) + "#doneaza";
+    });
+
+    /* — formular 230 (3,5%) — */
+    var f230 = $("[data-form-230]", host);
+    if (f230) {
+      var prev = $("[data-f230-preview]", host);
+      function refac() {
+        var fd = new FormData(f230);
+        var rows = [
+          ["Nume și prenume", (fd.get("nume") || "") + ""],
+          ["CNP", (fd.get("cnp") || "") + ""],
+          ["Adresă", (fd.get("adresa") || "") + ""],
+          ["E-mail", (fd.get("email") || "") + ""],
+          ["Perioada", (fd.get("doiani") ? "2 ani (distribuire până la revocare)" : "1 an")],
+          ["Organizația beneficiară", "Asociația Salvează o Inimă (demo)"],
+          ["Procent direcționat", "3,5% din impozitul anual pe venit"]
+        ];
+        prev.innerHTML = '<div class="f230"><h3>Previzualizare — Formular 230 (demo)</h3>' +
+          '<dl>' + rows.map(function (r) {
+            return '<dt>' + esc(r[0]) + '</dt><dd>' + (esc(r[1]) || "&nbsp;") + '</dd>';
+          }).join("") + '</dl>' +
+          '<p class="hint mt-2">Aceasta este o machetă demonstrativă, nu formularul oficial ANAF.</p></div>';
+      }
+      f230.addEventListener("input", SOI.debounce(refac, 150));
+      f230.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!SOI.validate(f230)) { SOI.toast("Verifică datele completate.", "err"); return; }
+        refac();
+        SOI.toast("Formularul e gata — folosește «Tipărește».", "ok");
+      });
+      var printBtn = $("[data-f230-print]", host);
+      if (printBtn) printBtn.addEventListener("click", function () {
+        if (!SOI.validate(f230)) { SOI.toast("Completează întâi câmpurile obligatorii.", "err"); return; }
+        refac(); window.print();
+      });
+      refac();
+    }
+
+    /* — calculator 20% firme — */
+    var f20 = $("[data-calc-20]", host);
+    if (f20) {
+      var out = $("[data-calc-out]", host);
+      function calc() {
+        var profitTax = parseFloat($('[name="impozit"]', f20).value) || 0;
+        var cifra = parseFloat($('[name="cifra"]', f20).value) || 0;
+        if (!profitTax || !cifra) { out.innerHTML = '<p class="muted small">Completează cele două sume ca să vezi cât poți sponsoriza fără niciun cost.</p>'; return; }
+        var lim1 = profitTax * 0.20, lim2 = cifra * 0.0075;
+        var suma = Math.max(0, Math.min(lim1, lim2));
+        out.innerHTML =
+          '<div class="alert alert--ok"><div><strong>Poți sponsoriza ' + suma.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei cu cost zero.</strong>' +
+          'Limita este minimul dintre 20% din impozitul pe profit (' + lim1.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei) și 0,75% din cifra de afaceri (' +
+          lim2.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei). Suma se scade integral din impozitul datorat.</div></div>' +
+          '<a class="btn mt-2" href="contact.html">Cere contractul de sponsorizare</a>';
+      }
+      f20.addEventListener("input", SOI.debounce(calc, 200));
+      calc();
+    }
+  }
+
+  /* =========================================================
+     SPONSORI
+     ========================================================= */
+  function initSponsori() {
+    var host = $("[data-sponsori]");
+    if (!host) return;
+    function chip(s, mare) {
+      return '<div class="card card--hover center" style="display:grid;place-items:center;gap:.6rem;' + (mare ? "padding:2rem 1.4rem" : "") + '">' +
+        '<div style="width:' + (mare ? "4.4rem" : "3.2rem") + ';aspect-ratio:1;border-radius:50%;overflow:hidden">' +
+          SOI.imgSauInitiale("assets/img/sponsori/" + s.id + ".png", "Logo " + s.nume, SOI.initiale(s.nume), "avatar-ph--sm") +
+        '</div><strong style="font-size:' + (mare ? "1.05rem" : ".92rem") + '">' + esc(s.nume) + '</strong></div>';
+    }
+    $("[data-sp-principali]", host).innerHTML = SOI.SPONSORI.principali.map(function (s) { return chip(s, true); }).join("");
+    $("[data-sp-sustinatori]", host).innerHTML = SOI.SPONSORI.sustinatori.map(function (s) { return chip(s); }).join("");
+    construiesteMarquee();
+  }
+
+  /* =========================================================
+     DESPRE (echipă + premii + testimoniale)
+     ========================================================= */
+  function initDespre() {
+    var host = $("[data-despre]");
+    if (!host) return;
+    $("[data-echipa]", host).innerHTML = SOI.ECHIPA.map(function (m, i) {
+      return '<article class="card card--hover center rv" data-delay="' + i * 70 + '">' +
+        '<div style="width:5.4rem;aspect-ratio:1;border-radius:50%;overflow:hidden;margin:0 auto 1rem">' +
+          SOI.imgSauInitiale("assets/img/echipa/" + m.id + ".jpg", m.nume, SOI.initiale(m.nume), "avatar-ph--sm") +
+        '</div>' +
+        '<h3 style="font-size:1.15rem">' + esc(m.nume) + '</h3>' +
+        '<p class="blue-note small">' + esc(m.rol) + '</p>' +
+        '<p class="small mt-1">' + esc(m.text) + '</p></article>';
+    }).join("");
+    $("[data-premii]", host).innerHTML = SOI.PREMII.map(function (p) {
+      return '<div class="card row" style="gap:1rem;flex-wrap:nowrap">' +
+        '<span class="badge badge--amber" style="font-size:.95rem;padding:.5rem .9rem">' + esc(p.an) + '</span>' +
+        '<div><strong>' + esc(p.titlu) + '</strong><br><span class="small muted">' + esc(p.detaliu) + '</span></div></div>';
+    }).join("");
+    var t = $("[data-testimoniale-grid]", host);
+    if (t) t.innerHTML = SOI.TESTIMONIALE.map(function (x, i) {
+      return '<figure class="card rv" data-delay="' + i * 60 + '">' +
+        '<blockquote style="font-size:.98rem">&bdquo;' + esc(x.text) + '&rdquo;</blockquote>' +
+        '<figcaption class="mt-2" style="font-weight:700;color:var(--accent)">— ' + esc(x.autor) + '</figcaption></figure>';
+    }).join("");
+    SOI.reveal(host);
+  }
+
+  /* =========================================================
+     FAQ + CONTACT
      ========================================================= */
   function initFaq() {
     var host = $("[data-faq]");
     if (!host) return;
-    var list = $("[data-faq-list]", host);
-    var q    = $("[data-faq-q]", host);
-    var cats = $("[data-faq-cats]", host);
-    var count = $("[data-faq-count]", host);
+    var list = $("[data-faq-list]", host), q = $("[data-faq-q]", host),
+        cats = $("[data-faq-cats]", host), count = $("[data-faq-count]", host);
     var activeCat = "";
-
-    var categorii = SOI.FAQ.map(function (f) { return f.c; })
-      .filter(function (v, i, a) { return a.indexOf(v) === i; });
-    cats.innerHTML = '<button type="button" class="bg-pill is-on" data-cat="">Toate</button>' +
-      categorii.map(function (c) { return '<button type="button" class="bg-pill" data-cat="' + esc(c) + '">' + esc(c) + '</button>'; }).join("");
+    var categorii = SOI.FAQ.map(function (f) { return f.c; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
+    cats.innerHTML = '<button type="button" class="amount-pill is-on" data-cat="">Toate</button>' +
+      categorii.map(function (c) { return '<button type="button" class="amount-pill" data-cat="' + esc(c) + '">' + esc(c) + '</button>'; }).join("");
 
     function render() {
       var term = (q.value || "").trim().toLowerCase();
@@ -575,36 +471,23 @@
         return (f.q + " " + f.a).toLowerCase().indexOf(term) !== -1;
       });
       count.textContent = res.length + (res.length === 1 ? " întrebare" : " întrebări");
-
-      if (!res.length) {
-        list.innerHTML = '<div class="empty"><p><strong>Nu am găsit nimic pentru „' + esc(q.value) + '”.</strong></p>' +
-          '<p class="small">Scrie-ne direct — răspundem în cel mult o zi lucrătoare.</p>' +
-          '<a class="btn btn--sm mt-2" href="contact.html">Pune întrebarea</a></div>';
-        return;
-      }
-
-      list.innerHTML = res.map(function (f, i) {
-        return '<div class="acc">' +
-          '<button class="acc__btn" type="button" aria-expanded="false" aria-controls="faq-p-' + i + '">' +
+      list.innerHTML = res.length ? res.map(function (f, i) {
+        return '<div class="acc"><button class="acc__btn" type="button" aria-expanded="false" aria-controls="faq-p-' + i + '">' +
           '<span>' + esc(f.q) + '</span><span class="acc__ic" aria-hidden="true">+</span></button>' +
-          '<div class="acc__body" id="faq-p-' + i + '"><div><p>' + esc(f.a) + '</p></div></div>' +
-          '</div>';
-      }).join("");
+          '<div class="acc__body" id="faq-p-' + i + '"><div><p>' + esc(f.a) + '</p></div></div></div>';
+      }).join("") : '<div class="empty"><p><strong>Nu am găsit nimic.</strong></p>' +
+        '<a class="btn btn--sm mt-2" href="contact.html">Pune întrebarea direct</a></div>';
     }
-
     q.addEventListener("input", SOI.debounce(render, 160));
     cats.addEventListener("click", function (e) {
       var b = e.target.closest("[data-cat]"); if (!b) return;
       activeCat = b.dataset.cat;
-      $$(".bg-pill", cats).forEach(function (x) { x.classList.toggle("is-on", x === b); });
+      $$(".amount-pill", cats).forEach(function (x) { x.classList.toggle("is-on", x === b); });
       render();
     });
     render();
   }
 
-  /* =========================================================
-     8. Formular de contact
-     ========================================================= */
   function initContact() {
     var form = $("[data-contact-form]");
     if (!form) return;
@@ -613,56 +496,15 @@
       if (!SOI.validate(form)) { SOI.toast("Verifică datele completate.", "err"); return; }
       var nume = String(new FormData(form).get("nume") || "").split(" ")[0];
       form.innerHTML = '<div class="alert alert--ok"><div><strong>Mulțumim, ' + esc(nume) + '!</strong>' +
-        'Mesajul tău a fost înregistrat. Îți răspundem pe e-mail în cel mult o zi lucrătoare.</div></div>';
+        'Mesajul a fost înregistrat. Răspundem în cel mult 3 zile lucrătoare.</div></div>';
       SOI.toast("Mesaj trimis.", "ok");
     });
   }
 
-  /* =========================================================
-     9. Mituri (pagina „Donează”)
-     ========================================================= */
-  function initMituri() {
-    var host = $("[data-mituri]");
-    if (!host) return;
-    host.innerHTML = SOI.MITURI.map(function (m, i) {
-      return '<article class="card rv" data-delay="' + (i * 70) + '">' +
-        '<span class="badge badge--err mb-2">Mit</span>' +
-        '<h3 style="font-size:1.05rem">' + esc(m.mit) + '</h3>' +
-        '<span class="badge badge--ok mt-2 mb-2">Realitate</span>' +
-        '<p>' + esc(m.adevar) + '</p></article>';
-    }).join("");
-    $$(".rv", host).forEach(function (el) { el.classList.add("is-in"); });
-  }
-
-  /* =========================================================
-     10. Distribuția grupelor (pagina compatibilitate)
-     ========================================================= */
-  function initFrecventa() {
-    var host = $("[data-frecventa]");
-    if (!host) return;
-    var max = Math.max.apply(null, SOI.GRUPE.map(function (g) { return SOI.FRECVENTA[g]; }));
-    host.innerHTML = SOI.GRUPE.map(function (g) {
-      var v = SOI.FRECVENTA[g];
-      return '<div style="display:grid;grid-template-columns:3rem 1fr 3rem;gap:.8rem;align-items:center;margin-bottom:.55rem">' +
-        '<strong>' + g + '</strong>' +
-        '<div style="height:.7rem;background:var(--surface-2);border-radius:99px;overflow:hidden">' +
-        '<div style="height:100%;width:' + (v / max * 100) + '%;background:linear-gradient(90deg,var(--red-400),var(--red-700));border-radius:99px"></div></div>' +
-        '<span class="small muted" style="text-align:right">' + v + '%</span></div>';
-    }).join("");
-  }
-
   /* ---------- pornire ---------- */
   function boot() {
-    initEligibilitate();
-    initInterval();
-    initCompatibilitate();
-    initCentre();
-    initUrgente();
-    initProgramare();
-    initFaq();
-    initContact();
-    initMituri();
-    initFrecventa();
+    initAcasa(); initCazuri(); initCaz(); initDoneaza();
+    initSponsori(); initDespre(); initFaq(); initContact();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

@@ -1,84 +1,71 @@
-# Salvează o Inimă
+# Salvează o Inimă — site v2
 
-Site de campanie pentru donarea de sânge — 8 pagini, complet static, fără build,
-fără dependențe externe. Se deschide direct în browser sau se pune pe orice hosting.
+Platformă demonstrativă de strângere de fonduri pentru operațiile pe cord ale
+copiilor — reconstrucția modernă a salveazaoinima.ro. Opt pagini statice, fără
+build, fără dependențe externe.
+
+## Identitate preluată din site-ul original
+
+- **Culori** (extrase din CSS-ul original): roșu `#E41127`, albastru `#1142E4`,
+  galben `#FEEDBA`, roz pal `#FDE6E9`, gri `#333` / `#F2F2F2`.
+- **Fonturi**: Bree Serif (titluri) + Open Sans (text) — găzduite local în
+  `assets/fonts/` (subset latin + latin-ext, ~100 KB total).
 
 ## Pagini
 
 | Fișier | Ce conține |
 | --- | --- |
-| `index.html` | Pagina principală: hero animat, statistici cu contoare, de ce contează, cum funcționează |
-| `doneaza.html` | Test de eligibilitate, pregătirea înainte/după, ce se întâmplă la centru, mituri |
-| `programare.html` | Formular de programare în 4 pași, cu validare și confirmare |
-| `urgente.html` | Cereri urgente filtrabile + formular de publicare a unei cereri |
-| `compatibilitate.html` | Calculator de compatibilitate a grupelor + tabelul complet |
-| `centre.html` | Lista centrelor, cu căutare și filtrare pe județ |
-| `faq.html` | Întrebări frecvente cu căutare și filtrare pe categorii |
-| `contact.html` | Formular de contact și secțiunea „despre proiect” |
+| `index.html` | Slider hero (3 slide-uri), statistici animate, slider cazuri urgente, cum funcționează, CTA 3,5%/20%, testimoniale, marquee sponsori |
+| `cazuri.html` | Toate campaniile: căutare, filtru stare, sortare, bare de progres |
+| `caz.html?c=slug` | Pagina campaniei: poveste, cronologie actualizări, casetă de donație cu sume și impact, confetti, share, bara mobilă lipită jos |
+| `doneaza.html` | Trei tab-uri: donație directă · formular 230 (3,5%) cu previzualizare tipăribilă · calculator sponsorizare 20% firme |
+| `sponsori.html` | Sponsori principali + susținători, marquee, CTA firme |
+| `despre.html` | Principii, echipă, premii, testimoniale |
+| `faq.html` | Întrebări cu căutare și categorii |
+| `contact.html` | Formular validat + date donații + deschidere campanie |
 
-## Funcționalități
+## Imagini
 
-- **Test de eligibilitate** — 10 criterii, verdict în timp real, criterii obligatorii vs. recomandări.
-- **Calculator compatibilitate** — mod „donez” / „primesc”, globule roșii și plasmă, tabel 8×8, frecvența grupelor.
-- **Calculator interval** — când poți dona din nou, cu export `.ics` pentru calendar.
-- **Programare în 4 pași** — validare per pas, sumar înainte de trimitere, cod de programare, export `.ics`.
-- **Cereri urgente** — sortate după urgență, filtrare pe grupă / oraș, plus filtrul „cui pot dona cu grupa mea”.
-- **Publicare cerere** — formular care adaugă cererea în listă.
-- **Căutare** — în centre și în întrebările frecvente.
-- **Temă deschisă / închisă** — comutator persistent, respectă și preferința sistemului.
-- **Animații** — apariție la scroll, contoare, bară de progres, toate dezactivate automat la `prefers-reduced-motion`.
-- **Accesibilitate** — navigare la tastatură, `aria-*`, link „sari la conținut”, focus vizibil, contrast verificat în ambele teme.
+Site-ul funcționează fără nicio imagine: unde lipsește poza apare un substitut
+cu inițialele, pe gradient. Ca să folosești pozele reale, pune fișierele așa:
+
+```
+assets/img/cazuri/<slug>.jpg     fotografia fiecărui caz (ex. david-t.jpg)
+assets/img/slides/1.jpg …3.jpg   fundalurile sliderului de pe prima pagină
+assets/img/sponsori/<id>.png     logo-urile sponsorilor (ex. s1.png)
+assets/img/echipa/<id>.jpg       pozele echipei (ex. e1.jpg)
+```
+
+Apar automat, fără nicio modificare de cod. Atenție: repo-ul e public — nu
+urca fotografii cu minori fără acordul familiilor.
 
 ## Structură
 
 ```
-index.html … contact.html      paginile
-assets/css/style.css           sistemul de design (tokens, componente, layout)
-assets/css/fonts.css           @font-face pentru fontul local
-assets/fonts/*.woff2           Plus Jakarta Sans (variabil, subset latin + latin-ext)
-assets/js/data.js              datele: grupe, centre, cereri, criterii, întrebări
-assets/js/app.js               nucleul: temă, navigație, animații, validare, utilitare
-assets/js/features.js          funcționalitățile fiecărei pagini
+assets/css/style.css   sistemul de design (tokens = culorile, într-un singur loc)
+assets/css/fonts.css   @font-face pentru fonturile locale
+assets/js/data.js      cazuri, sponsori, echipă, testimoniale, FAQ — TOATE DEMO
+assets/js/app.js       temă light/dark, slider generic, animații, validare
+assets/js/features.js  logica fiecărei pagini
+tools/copiaza-site.sh  descarcă o copie statică a unui site public (wget/curl)
 ```
 
 ## Rulare locală
 
 ```bash
-npx http-server -p 8080     # sau: python3 -m http.server 8080
+npx http-server -p 8080    # sau: python3 -m http.server 8080
 ```
-
-Apoi deschide <http://localhost:8080>.
-
-> Deschiderea directă prin `file://` funcționează, dar browserul blochează
-> preîncărcarea fontului din motive de CORS. Folosește un server local.
 
 ## Înainte de publicare
 
-1. **Datele centrelor din `assets/js/data.js` sunt demonstrative.** Înlocuiește adresele,
-   telefoanele și programul cu datele reale. Pagina `centre.html` afișează un avertisment
-   până când faci asta — șterge-l după.
-2. **Formularele nu trimit nimic către un server.** Programările, cererile și mesajele se
-   salvează doar în `localStorage`, în browserul vizitatorului. Pentru funcționare reală,
-   conectează-le la un backend sau la un serviciu de formulare.
-3. **Cererile urgente sunt exemple.** Șterge `SOI.CERERI_SEED` sau înlocuiește-l cu date reale.
-4. Verifică textele medicale cu un cadru medical din centrul de transfuzie.
-
-## Copierea unui site existent
-
-`tools/copiaza-site.sh` descarcă un site public complet — HTML, CSS, JavaScript,
-imagini și fonturi — adică designul și funcțiile care rulează în browser.
-
-```bash
-./tools/copiaza-site.sh https://exemplu.ro
-```
-
-Rezultatul e un folder care funcționează offline: îl deschizi cu `index.html`.
-
-Ce nu vine odată cu el: codul de pe server (PHP, baza de date, adminul) și
-conținutul generat de JavaScript după încărcare (React, Vue, Next.js). Pentru
-site-uri de tipul acesta, folosește extensia **SingleFile** din Chrome/Firefox,
-care salvează pagina randată într-un singur fișier `.html`.
+1. **Toate datele din `assets/js/data.js` sunt fictive** — cazuri, sume,
+   sponsori, testimoniale, premii. Înlocuiește-le cu cele reale.
+2. **Formularele nu trimit nimic** — donația e simulată local, formularul 230
+   e o machetă tipăribilă, nu cel oficial ANAF. Pentru funcționare reală e
+   nevoie de procesator de plăți și backend.
+3. IBAN-ul și contactele din `contact.html` sunt substituenți.
+4. Copia site-ului vechi este pe branch-ul `copie-site`.
 
 ## Licențe
 
-Fontul Plus Jakarta Sans este distribuit sub SIL Open Font License 1.1.
+Bree Serif (SIL OFL 1.1), Open Sans (SIL OFL 1.1) — via Google Fonts.

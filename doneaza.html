@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cum donez sânge · Salvează o Inimă</title>
-<meta name="description" content="Criterii de eligibilitate, pregătirea înainte de donare, ce se întâmplă la centru și ce faci după. Plus calculator pentru următoarea donare.">
+<title>Donează · Salvează o Inimă</title>
+<meta name="description" content="Donează pentru un copil, redirecționează 3,5% din impozitul pe venit sau sponsorizează ca firmă cu 20% din impozitul pe profit.">
 <meta name="theme-color" content="#ffffff">
-<meta property="og:title" content="Cum donez sânge · Salvează o Inimă">
-<meta property="og:description" content="Criterii de eligibilitate, pregătirea înainte de donare, ce se întâmplă la centru și ce faci după. Plus calculator pentru următoarea donare.">
+<meta property="og:title" content="Donează · Salvează o Inimă">
+<meta property="og:description" content="Donează pentru un copil, redirecționează 3,5% din impozitul pe venit sau sponsorizează ca firmă cu 20% din impozitul pe profit.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ro_RO">
-<link rel="preload" as="font" type="font/woff2" href="assets/fonts/plus-jakarta-sans-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/bree-serif-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/open-sans-latin.woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/fonts.css">
 <link rel="stylesheet" href="assets/css/style.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23dc1440' d='M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e41127' d='M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z'/%3E%3C/svg%3E">
 <script>(function(){try{var t=JSON.parse(localStorage.getItem('soi-theme'));if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
 </head>
 <body>
@@ -27,10 +28,10 @@
     </a>
     <nav class="nav" data-nav aria-label="Navigație principală">
       <a href="index.html">Acasă</a>
+      <a href="cazuri.html">Cazuri</a>
       <a href="doneaza.html">Donează</a>
-      <a href="urgente.html">Cereri urgente</a>
-      <a href="compatibilitate.html">Grupe de sânge</a>
-      <a href="centre.html">Centre</a>
+      <a href="sponsori.html">Sponsori</a>
+      <a href="despre.html">Despre noi</a>
       <a href="faq.html">Întrebări</a>
       <a href="contact.html">Contact</a>
     </nav>
@@ -38,8 +39,8 @@
       <button class="icon-btn" data-theme-toggle type="button" aria-label="Comută tema">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
-      <a class="btn btn--sm hide-sm" href="programare.html">Donează</a>
-      <button class="icon-btn burger" data-burger type="button" aria-label="Meniu" aria-expanded="false" aria-controls="nav">
+      <a class="btn btn--sm hide-sm" href="doneaza.html">Donează ♥</a>
+      <button class="icon-btn burger" data-burger type="button" aria-label="Meniu" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
     </div>
@@ -48,105 +49,82 @@
 <main id="main">
 
 <section class="phead">
-  <div class="blobs" aria-hidden="true"><span class="blob blob--1"></span><span class="blob blob--2"></span></div>
   <div class="wrap">
     <p class="crumbs"><a href="index.html">Acasă</a> · Donează</p>
-    <h1>Tot ce trebuie să știi înainte să donezi</h1>
-    <p class="lead mt-2" style="max-width:44rem">Fără termeni medicali inutili: cine poate dona, cum te pregătești, ce se întâmplă efectiv la centru și cât aștepți până data viitoare.</p>
+    <h1>Trei feluri de a salva o inimă</h1>
+    <p class="lead mt-2" style="max-width:46rem">Bani de buzunar sau impozit care oricum s-a plătit — alege calea care ți se potrivește.</p>
   </div>
 </section>
-
-<section class="section" id="eligibilitate" data-eligibilitate>
-  <div class="wrap grid g2" style="align-items:start">
-    <div>
-      <span class="eyebrow">Pasul 1</span>
-      <h2>Ești eligibil?</h2>
-      <p class="lead mt-2">Bifează afirmațiile adevărate pentru tine. Nimic nu se trimite nicăieri — evaluarea rămâne în browserul tău.</p>
-      <div class="mt-3" style="height:.6rem;background:var(--surface-2);border-radius:99px;overflow:hidden" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Criterii bifate">
-        <div data-elig-bar style="height:100%;width:0;background:linear-gradient(90deg,var(--red-400),var(--red-700));border-radius:99px;transition:width .4s cubic-bezier(.22,1,.36,1)"></div>
-      </div>
-      <div class="mt-3" data-elig-result></div>
-      <button class="btn btn--ghost btn--sm mt-3" type="button" data-elig-reset>Șterge bifele</button>
-      <p class="hint mt-2">Lista acoperă criteriile uzuale. Decizia finală o ia medicul centrului, după chestionarul medical și analizele de la fața locului.</p>
+<section class="section" data-doneaza-pagina style="padding-top:1.6rem">
+  <div class="wrap" style="max-width:52rem">
+    <div class="tabs" role="tablist">
+      <button class="tab is-on" role="tab" data-tab="donatie" aria-selected="true">💶 Donație directă</button>
+      <button class="tab" role="tab" data-tab="trei-cinci" aria-selected="false">📄 3,5% salariați</button>
+      <button class="tab" role="tab" data-tab="firme" aria-selected="false">🏢 20% firme</button>
     </div>
-    <div class="stack" data-elig-list></div>
-  </div>
-</section>
 
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="section__head rv"><span class="eyebrow">Pasul 2</span><h2>Cum te pregătești</h2></div>
-    <div class="grid g2">
-      <article class="card rv">
-        <span class="badge badge--ok mb-2">Da</span>
-        <h3 class="mb-2">Cu 24 de ore înainte</h3>
-        <ul class="stack" style="padding-left:1.1rem">
-          <li>Dormi cel puțin 6–7 ore.</li>
-          <li>Bea multă apă — hidratarea ușurează recoltarea.</li>
-          <li>Mănâncă normal, inclusiv o masă ușoară în dimineața donării.</li>
-          <li>Ia buletinul cu tine.</li>
-        </ul>
-      </article>
-      <article class="card rv" data-delay="90">
-        <span class="badge badge--err mb-2">Nu</span>
-        <h3 class="mb-2">De evitat</h3>
-        <ul class="stack" style="padding-left:1.1rem">
-          <li>Alcool în ultimele 48 de ore.</li>
-          <li>Mâncare grasă sau prăjeli înainte de donare.</li>
-          <li>Fumatul cu o oră înainte.</li>
-          <li>Să vii pe stomacul gol sau după o noapte nedormită.</li>
-        </ul>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="section__head rv"><span class="eyebrow">Pasul 3</span><h2>Ce se întâmplă la centru</h2></div>
-    <div class="steps">
-      <div class="step rv"><h3>Înregistrare</h3><p>Prezinți buletinul și completezi chestionarul medical — sincer, e în interesul tău și al pacientului.</p></div>
-      <div class="step rv" data-delay="80"><h3>Analize rapide</h3><p>Se determină grupa sanguină și hemoglobina, dintr-o înțepătură în deget.</p></div>
-      <div class="step rv" data-delay="160"><h3>Consult medical</h3><p>Tensiune, puls, discuție cu medicul. Aici primești sau nu avizul de donare.</p></div>
-      <div class="step rv" data-delay="240"><h3>Recoltare și odihnă</h3><p>8–12 minute de recoltare, apoi 10–15 minute de odihnă cu o gustare și lichide.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap grid g2" style="align-items:start">
-    <div>
-      <span class="eyebrow">Pasul 4</span>
-      <h2>Când pot dona din nou?</h2>
-      <p class="lead mt-2">Între două donări de sânge integral e nevoie de o pauză, ca organismul să-și refacă rezervele de fier. Calculează-ți data și pune-ți un memento.</p>
-      <div class="card mt-3" data-interval>
-        <label class="field"><span>Data ultimei donări</span>
-          <input class="input" type="date" data-interval-date>
+    <div data-pane="donatie">
+      <form class="card" data-form-donatie novalidate>
+        <h3 class="mb-2">Donează acum</h3>
+        <label class="field"><span>Către ce campanie?</span>
+          <select class="select" name="caz"></select>
+          <span class="hint">Dacă nu alegi, donația merge la cazul urgent cu progresul cel mai mic.</span>
         </label>
-        <label class="field"><span>Sex</span>
-          <select class="select" data-interval-sex>
-            <option value="m">Masculin — interval de 3 luni</option>
-            <option value="f">Feminin — interval de 4 luni</option>
-          </select>
-        </label>
-        <div data-interval-out></div>
+        <button class="btn btn--lg" type="submit">Continuă spre campanie →</button>
+        <p class="hint mt-2">Demo — pagina campaniei simulează donația, fără plăți reale.</p>
+      </form>
+      <div class="alert mt-3"><div><strong>Preferi transfer bancar?</strong>Contul asociației și detaliile pentru donații recurente sunt pe pagina de <a href="contact.html" style="text-decoration:underline">contact</a>.</div></div>
+    </div>
+
+    <div data-pane="trei-cinci" class="hidden" id="trei-cinci">
+      <div class="grid g2" style="align-items:start">
+        <form class="card" data-form-230 novalidate>
+          <h3 class="mb-1">Formular 230 — 3,5%</h3>
+          <p class="small muted mb-3">Pentru salariați. Nu te costă nimic: redirecționezi o parte din impozitul deja reținut.</p>
+          <label class="field"><span>Nume și prenume <span class="req">*</span></span>
+            <input class="input" type="text" name="nume" data-required autocomplete="name">
+            <span class="field-err">Completează numele.</span></label>
+          <label class="field"><span>CNP <span class="req">*</span></span>
+            <input class="input" type="text" name="cnp" data-required data-pattern="^[0-9]{13}$" inputmode="numeric" maxlength="13">
+            <span class="field-err">CNP-ul are exact 13 cifre.</span></label>
+          <label class="field"><span>Adresă <span class="req">*</span></span>
+            <input class="input" type="text" name="adresa" data-required autocomplete="street-address">
+            <span class="field-err">Completează adresa.</span></label>
+          <label class="field"><span>E-mail</span>
+            <input class="input" type="email" name="email" autocomplete="email"></label>
+          <label class="check mb-2"><input type="checkbox" name="doiani"> <span>Redirecționez pentru <strong>2 ani</strong> (nu mai completezi anul viitor)</span></label>
+          <div class="row">
+            <button class="btn" type="submit">Generează formularul</button>
+            <button class="btn btn--ghost" type="button" data-f230-print>Tipărește</button>
+          </div>
+          <p class="hint mt-2">Machetă demonstrativă — versiunea finală se depune la ANAF (online prin SPV sau pe hârtie).</p>
+        </form>
+        <div data-f230-preview></div>
       </div>
     </div>
-    <div>
-      <span class="eyebrow">Mituri</span>
-      <h2 class="mb-3">Ce se spune vs. ce este</h2>
-      <div class="grid" data-mituri></div>
-    </div>
-  </div>
-</section>
 
-<section class="section">
-  <div class="wrap center rv">
-    <h2>Gata de pasul următor?</h2>
-    <p class="lead mt-2">Alege centrul și ora care ți se potrivesc.</p>
-    <div class="row mt-3" style="justify-content:center">
-      <a class="btn btn--lg" href="programare.html">Programează-te<span aria-hidden="true">→</span></a>
-      <a class="btn btn--lg btn--ghost" href="centre.html">Vezi centrele</a>
+    <div data-pane="firme" class="hidden" id="firme">
+      <div class="grid g2" style="align-items:start">
+        <form class="card" data-calc-20 novalidate>
+          <h3 class="mb-1">Calculator sponsorizare 20%</h3>
+          <p class="small muted mb-3">Pentru firme plătitoare de impozit pe profit. Suma sponsorizată se scade din impozit — cost real zero.</p>
+          <label class="field"><span>Impozit pe profit anual estimat (lei)</span>
+            <input class="input" type="number" name="impozit" min="0" inputmode="numeric" placeholder="de ex. 120000"></label>
+          <label class="field"><span>Cifra de afaceri anuală (lei)</span>
+            <input class="input" type="number" name="cifra" min="0" inputmode="numeric" placeholder="de ex. 4000000"></label>
+        </form>
+        <div>
+          <div data-calc-out></div>
+          <div class="card mt-2">
+            <h3 style="font-size:1.05rem" class="mb-1">Ce primești ca sponsor</h3>
+            <ul class="stack small" style="padding-left:1.1rem;color:var(--text-soft)">
+              <li>Contract de sponsorizare și raport de utilizare a fondurilor</li>
+              <li>Logo în galeria sponsorilor și în raportul anual</li>
+              <li>Un copil operat — cel mai bun raport CSR posibil</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -155,46 +133,48 @@
   <div class="wrap">
     <div class="ftr__grid">
       <div>
-        <a class="logo mb-2" href="index.html"><span class="logo__mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z"/></svg></span><span>Salvează <span class="grad">o Inimă</span></span></a>
-        <p class="small muted" style="max-width:26rem">Un om sănătos poate salva până la trei vieți în mai puțin de o oră. Atât durează o donare de sânge.</p>
+        <a class="logo mb-2" href="index.html"><span class="logo__mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z"/></svg></span><span>Salvează <span style="color:#ff5a6d">o Inimă</span></span></a>
+        <p class="small" style="max-width:26rem;color:#c9aeb4">Strângem fonduri pentru operațiile pe cord ale copiilor din familii care nu și le pot permite. Transparent, caz cu caz.</p>
         <div class="row mt-2">
-          <a class="btn btn--sm" href="programare.html">Programează-te</a>
-          <a class="btn btn--sm btn--ghost" href="urgente.html">Cereri urgente</a>
+          <a class="btn btn--sm" href="doneaza.html">Donează</a>
+          <a class="btn btn--sm btn--light" href="doneaza.html#trei-cinci">Formular 230</a>
         </div>
       </div>
       <div>
-        <h4>Donatori</h4>
+        <h4>Implică-te</h4>
         <ul>
-          <li><a href="doneaza.html">Cum donez</a></li>
-          <li><a href="doneaza.html#eligibilitate">Sunt eligibil?</a></li>
-          <li><a href="programare.html">Programare</a></li>
-          <li><a href="compatibilitate.html">Grupe de sânge</a></li>
+          <li><a href="cazuri.html">Cazuri active</a></li>
+          <li><a href="doneaza.html">Donează</a></li>
+          <li><a href="doneaza.html#trei-cinci">Redirecționează 3,5%</a></li>
+          <li><a href="doneaza.html#firme">Sponsorizare firme 20%</a></li>
         </ul>
       </div>
       <div>
-        <h4>Pacienți</h4>
+        <h4>Organizație</h4>
         <ul>
-          <li><a href="urgente.html">Cereri active</a></li>
-          <li><a href="urgente.html#publica">Publică o cerere</a></li>
-          <li><a href="centre.html">Centre de donare</a></li>
+          <li><a href="despre.html">Despre noi</a></li>
+          <li><a href="despre.html#echipa">Echipa</a></li>
+          <li><a href="sponsori.html">Sponsori</a></li>
+          <li><a href="despre.html#premii">Premii</a></li>
         </ul>
       </div>
       <div>
-        <h4>Informații</h4>
+        <h4>Ajutor</h4>
         <ul>
           <li><a href="faq.html">Întrebări frecvente</a></li>
           <li><a href="contact.html">Contact</a></li>
-          <li><a href="contact.html#despre">Despre proiect</a></li>
+          <li><a href="contact.html#caz-nou">Deschide o campanie</a></li>
         </ul>
       </div>
     </div>
     <div class="ftr__bot">
-      <span>&copy; <span data-year>2026</span> Salvează o Inimă. Informațiile de pe site au caracter orientativ și nu înlocuiesc sfatul medical.</span>
-      <span>În caz de urgență medicală sună la <strong>112</strong>.</span>
+      <span>&copy; <span data-year>2026</span> Salvează o Inimă. Site demonstrativ — datele cazurilor sunt fictive.</span>
+      <span>Făcut cu ♥ pentru inimi mici.</span>
     </div>
   </div>
 </footer>
 <div class="toast-host" role="status" aria-live="polite"></div>
+<div class="sticky-cta" data-sticky-cta></div>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/features.js"></script>

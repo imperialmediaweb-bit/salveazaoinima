@@ -1,156 +1,144 @@
 /* ==========================================================================
-   Date demonstrative pentru salveazaoinima.ro
-   IMPORTANT: adresele, telefoanele si programul sunt DATE DE TEST (demo).
-   Inlocuieste-le cu datele reale ale centrelor inainte de publicare.
+   Date demonstrative — platforma Salvează o Inimă
+   TOATE cazurile, sumele, sponsorii și testimonialele sunt DATE DE TEST.
+   Înlocuiește-le cu datele reale înainte de publicare.
+
+   IMAGINI: fiecare caz caută poza în assets/img/cazuri/<slug>.jpg.
+   Dacă poza lipsește, apare automat un substitut cu inițialele.
+   La fel: sponsori -> assets/img/sponsori/<id>.png,
+           echipă   -> assets/img/echipa/<id>.jpg,
+           slider   -> assets/img/slides/<n>.jpg.
    ========================================================================== */
 window.SOI = window.SOI || {};
 
-/* --- Grupe sanguine --------------------------------------------------- */
-SOI.GRUPE = ["0-", "0+", "A-", "A+", "B-", "B+", "AB-", "AB+"];
-
-/* Cine poate PRIMI de la cine (globule rosii).
-   donatori[grupa] = lista grupelor de la care grupa respectiva poate primi. */
-SOI.PRIMESTE_DE_LA = {
-  "0-":  ["0-"],
-  "0+":  ["0-", "0+"],
-  "A-":  ["0-", "A-"],
-  "A+":  ["0-", "0+", "A-", "A+"],
-  "B-":  ["0-", "B-"],
-  "B+":  ["0-", "0+", "B-", "B+"],
-  "AB-": ["0-", "A-", "B-", "AB-"],
-  "AB+": SOI.GRUPE.slice()
-};
-
-/* Cine poate DONA catre cine — derivat din tabelul de mai sus. */
-SOI.DONEAZA_CATRE = (function () {
-  var out = {};
-  SOI.GRUPE.forEach(function (g) { out[g] = []; });
-  SOI.GRUPE.forEach(function (primitor) {
-    SOI.PRIMESTE_DE_LA[primitor].forEach(function (donator) {
-      out[donator].push(primitor);
-    });
-  });
-  return out;
-})();
-
-/* Plasma merge invers fata de globulele rosii. */
-SOI.PLASMA_DONEAZA_CATRE = {
-  "AB+": SOI.GRUPE.slice(), "AB-": SOI.GRUPE.slice(),
-  "A+":  ["A+", "A-", "0+", "0-"], "A-": ["A+", "A-", "0+", "0-"],
-  "B+":  ["B+", "B-", "0+", "0-"], "B-": ["B+", "B-", "0+", "0-"],
-  "0+":  ["0+", "0-"], "0-": ["0+", "0-"]
-};
-
-/* Raspandirea aproximativa a grupelor in populatia Romaniei (%) — orientativ. */
-SOI.FRECVENTA = {
-  "0+": 32, "A+": 34, "B+": 15, "AB+": 6,
-  "0-": 5,  "A-": 5,  "B-": 2,  "AB-": 1
-};
-
-/* --- Centre de donare (DEMO) ------------------------------------------ */
-SOI.CENTRE = [
-  { id: "buc-1", nume: "Centrul de Transfuzie Sanguină București", oras: "București", judet: "București",
-    program: "Luni–Vineri 07:30–13:00", telefon: "—", obs: "Programare online recomandată", capacitate: "mare" },
-  { id: "cluj-1", nume: "Centrul de Transfuzie Sanguină Cluj", oras: "Cluj-Napoca", judet: "Cluj",
-    program: "Luni–Vineri 07:30–12:30", telefon: "—", obs: "Parcare gratuită pentru donatori", capacitate: "mare" },
-  { id: "iasi-1", nume: "Centrul de Transfuzie Sanguină Iași", oras: "Iași", judet: "Iași",
-    program: "Luni–Vineri 07:30–12:30", telefon: "—", obs: "Acces persoane cu dizabilități", capacitate: "mare" },
-  { id: "tm-1", nume: "Centrul de Transfuzie Sanguină Timiș", oras: "Timișoara", judet: "Timiș",
-    program: "Luni–Vineri 07:00–12:00", telefon: "—", obs: "Campanii mobile în weekend", capacitate: "mare" },
-  { id: "ct-1", nume: "Centrul de Transfuzie Sanguină Constanța", oras: "Constanța", judet: "Constanța",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "Program prelungit vara", capacitate: "medie" },
-  { id: "bv-1", nume: "Centrul de Transfuzie Sanguină Brașov", oras: "Brașov", judet: "Brașov",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "medie" },
-  { id: "dj-1", nume: "Centrul de Transfuzie Sanguină Dolj", oras: "Craiova", judet: "Dolj",
-    program: "Luni–Vineri 07:30–12:30", telefon: "—", obs: "—", capacitate: "medie" },
-  { id: "sb-1", nume: "Centrul de Transfuzie Sanguină Sibiu", oras: "Sibiu", judet: "Sibiu",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "medie" },
-  { id: "bh-1", nume: "Centrul de Transfuzie Sanguină Bihor", oras: "Oradea", judet: "Bihor",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "medie" },
-  { id: "gl-1", nume: "Centrul de Transfuzie Sanguină Galați", oras: "Galați", judet: "Galați",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "medie" },
-  { id: "ms-1", nume: "Centrul de Transfuzie Sanguină Mureș", oras: "Târgu Mureș", judet: "Mureș",
-    program: "Luni–Vineri 07:30–12:30", telefon: "—", obs: "—", capacitate: "medie" },
-  { id: "ph-1", nume: "Centrul de Transfuzie Sanguină Prahova", oras: "Ploiești", judet: "Prahova",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "mica" },
-  { id: "ar-1", nume: "Centrul de Transfuzie Sanguină Arad", oras: "Arad", judet: "Arad",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "mica" },
-  { id: "bc-1", nume: "Centrul de Transfuzie Sanguină Bacău", oras: "Bacău", judet: "Bacău",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "mica" },
-  { id: "ag-1", nume: "Centrul de Transfuzie Sanguină Argeș", oras: "Pitești", judet: "Argeș",
-    program: "Luni–Vineri 07:30–12:00", telefon: "—", obs: "—", capacitate: "mica" }
+/* --- Cazuri (campanii) -------------------------------------------------- */
+SOI.CAZURI = [
+  { slug: "david-t", nume: "David T.", varsta: 6, oras: "Cluj-Napoca",
+    diagnostic: "Malformație cardiacă congenitală",
+    poveste: "David s-a născut cu o inimă care bate altfel. Operația care i-ar da o copilărie normală se poate face într-o clinică din Italia, iar familia nu poate acoperi singură costul.",
+    target: 45000, strans: 31200, donatori: 412, urgent: true, activ: true,
+    updates: [
+      { data: "2026-08-12", text: "Am primit programarea la clinică pentru luna octombrie." },
+      { data: "2026-07-28", text: "S-a strâns 60% din suma necesară. Mulțumim!" },
+      { data: "2026-07-02", text: "Campania a fost lansată." }
+    ] },
+  { slug: "diana-c", nume: "Diana C.", varsta: 4, oras: "București",
+    diagnostic: "Tetralogie Fallot",
+    poveste: "Diana obosește după câțiva pași de joacă. Intervenția pe cord deschis îi poate reda energia oricărui copil de vârsta ei. Fiecare donație o aduce mai aproape de operație.",
+    target: 60000, strans: 18750, donatori: 263, urgent: true, activ: true,
+    updates: [
+      { data: "2026-08-05", text: "Dosarul medical a fost acceptat de clinică." },
+      { data: "2026-07-15", text: "Campania a fost lansată." }
+    ] },
+  { slug: "matei-t", nume: "Matei T.", varsta: 9, oras: "Iași",
+    diagnostic: "Cardiomiopatie dilatativă",
+    poveste: "Matei visează să joace fotbal cu colegii. Tratamentul de specialitate și monitorizarea lunară costă mai mult decât își permite familia lui.",
+    target: 30000, strans: 27900, donatori: 388, urgent: false, activ: true,
+    updates: [
+      { data: "2026-08-10", text: "Mai avem nevoie de doar 2.100 € — suntem aproape!" },
+      { data: "2026-06-20", text: "Campania a fost lansată." }
+    ] },
+  { slug: "larisa-n", nume: "Larisa N.", varsta: 2, oras: "Timișoara",
+    diagnostic: "Defect septal ventricular",
+    poveste: "La doi ani, Larisa a petrecut mai mult timp în spitale decât acasă. O singură intervenție îi poate închide „gaura din inimă” despre care vorbesc medicii.",
+    target: 38000, strans: 9350, donatori: 141, urgent: true, activ: true,
+    updates: [ { data: "2026-08-01", text: "Campania a fost lansată." } ] },
+  { slug: "rafael-c", nume: "Rafael C.", varsta: 7, oras: "Brașov",
+    diagnostic: "Stenoză aortică severă",
+    poveste: "Rafael desenează inimi pe toate caietele lui — spune că așa o încurajează pe a lui. Operația trebuie făcută înainte ca inima să obosească de tot.",
+    target: 52000, strans: 41600, donatori: 529, urgent: false, activ: true,
+    updates: [
+      { data: "2026-08-14", text: "80% strâns. Operația a fost programată provizoriu." },
+      { data: "2026-05-30", text: "Campania a fost lansată." }
+    ] },
+  { slug: "ana-s", nume: "Ana S.", varsta: 12, oras: "Constanța",
+    diagnostic: "Aritmie ventriculară — necesită defibrilator implantabil",
+    poveste: "Ana a leșinat de două ori la școală. Un mic aparat implantat i-ar păzi inima zi și noapte, dar dispozitivul și intervenția depășesc puterile familiei.",
+    target: 25000, strans: 25000, donatori: 344, urgent: false, activ: false,
+    updates: [
+      { data: "2026-07-19", text: "SUMA A FOST STRÂNSĂ. Operația a reușit — Ana e acasă!" },
+      { data: "2026-04-11", text: "Campania a fost lansată." }
+    ] },
+  { slug: "andrei-l", nume: "Andrei L.", varsta: 5, oras: "Oradea",
+    diagnostic: "Transpoziție de vase mari, operată — recuperare",
+    poveste: "Operația lui Andrei a reușit. Acum are nevoie de un an de recuperare cardiologică și controale trimestriale în străinătate.",
+    target: 15000, strans: 15000, donatori: 209, urgent: false, activ: false,
+    updates: [ { data: "2026-06-02", text: "Campanie încheiată cu succes. Mulțumim!" } ] },
+  { slug: "sara-h", nume: "Sara H.", varsta: 8, oras: "Sibiu",
+    diagnostic: "Insuficiență mitrală",
+    poveste: "Sara cântă în corul școlii, dar vocea ei obosește odată cu inima. Repararea valvei i-ar reda suflul — la propriu.",
+    target: 47000, strans: 6100, donatori: 87, urgent: false, activ: true,
+    updates: [ { data: "2026-08-16", text: "Campania a fost lansată." } ] }
 ];
 
-/* --- Cereri urgente (DEMO — se completeaza si din formularul din pagina) */
-SOI.CERERI_SEED = [
-  { id: "c1", grupa: "0-",  pacient: "Andrei M., 34 ani", spital: "Spital Județean", oras: "Cluj-Napoca",
-    nevoie: "Politraumatism după accident rutier", unitati: 6, urgenta: "critica", zileRamase: 1 },
-  { id: "c2", grupa: "A-",  pacient: "Maria T., 7 ani", spital: "Spital de Copii", oras: "București",
-    nevoie: "Intervenție chirurgicală programată", unitati: 3, urgenta: "critica", zileRamase: 2 },
-  { id: "c3", grupa: "B+",  pacient: "Ion V., 58 ani", spital: "Institut de Oncologie", oras: "Iași",
-    nevoie: "Tratament oncologic — transfuzii repetate", unitati: 4, urgenta: "ridicata", zileRamase: 5 },
-  { id: "c4", grupa: "0+",  pacient: "Elena R., 29 ani", spital: "Maternitate", oras: "Timișoara",
-    nevoie: "Hemoragie post-partum", unitati: 2, urgenta: "ridicata", zileRamase: 3 },
-  { id: "c5", grupa: "AB-", pacient: "Cristian P., 41 ani", spital: "Spital Municipal", oras: "Brașov",
-    nevoie: "Anemie severă", unitati: 2, urgenta: "medie", zileRamase: 9 },
-  { id: "c6", grupa: "A+",  pacient: "Gabriela S., 63 ani", spital: "Spital Județean", oras: "Constanța",
-    nevoie: "Operație cardiovasculară", unitati: 5, urgenta: "ridicata", zileRamase: 4 }
+/* --- Sponsori (DEMO) ---------------------------------------------------- */
+SOI.SPONSORI = {
+  principali: [
+    { id: "s1", nume: "TermoPlus Energy" }, { id: "s2", nume: "Banca Crescendo" },
+    { id: "s3", nume: "Farmacia Vitalis" }, { id: "s4", nume: "AutoDrive Group" }
+  ],
+  sustinatori: [
+    { id: "s5", nume: "Panificația Spicul" }, { id: "s6", nume: "IT Nova Software" },
+    { id: "s7", nume: "Transporturi Rapid" }, { id: "s8", nume: "Clinica San-Med" },
+    { id: "s9", nume: "Librăria Pagina" }, { id: "s10", nume: "GreenBuild Construct" },
+    { id: "s11", nume: "Hotel Belvedere" }, { id: "s12", nume: "Radio Armonia" },
+    { id: "s13", nume: "Tipografia Color" }, { id: "s14", nume: "AgroFerm SRL" },
+    { id: "s15", nume: "Optica Clara" }, { id: "s16", nume: "Cafeneaua Centrală" }
+  ]
+};
+
+/* --- Echipa (DEMO) ------------------------------------------------------ */
+SOI.ECHIPA = [
+  { id: "e1", nume: "Ioana Marinescu", rol: "Președinte fondator",
+    text: "A pornit asociația după ce propriul copil a trecut printr-o operație pe cord." },
+  { id: "e2", nume: "Dr. Radu Popa", rol: "Consultant medical",
+    text: "Cardiolog pediatru. Evaluează fiecare dosar înainte de lansarea campaniei." },
+  { id: "e3", nume: "Elena Dobre", rol: "Coordonator campanii",
+    text: "Ține legătura cu familiile și publică actualizările fiecărui caz." },
+  { id: "e4", nume: "Mihai Stancu", rol: "Relația cu sponsorii",
+    text: "Construiește parteneriatele care susțin cazurile fără vizibilitate." }
 ];
 
-/* --- Criterii de eligibilitate (chestionar) ---------------------------- */
-SOI.CRITERII = [
-  { id: "varsta",   text: "Am între 18 și 60 de ani (peste 60 doar cu avizul medicului).", blocant: true },
-  { id: "greutate", text: "Am cel puțin 50 kg.", blocant: true },
-  { id: "sanatate", text: "Mă simt sănătos/sănătoasă azi — fără febră, răceală sau infecție.", blocant: true },
-  { id: "odihna",   text: "Am dormit cel puțin 6 ore în noaptea precedentă.", blocant: false },
-  { id: "masa",     text: "Am mâncat ceva ușor și am băut lichide în ultimele ore.", blocant: false },
-  { id: "alcool",   text: "Nu am consumat alcool în ultimele 48 de ore.", blocant: true },
-  { id: "tatuaj",   text: "Nu mi-am făcut tatuaj, piercing sau tratament stomatologic major în ultimele 6 luni.", blocant: true },
-  { id: "operatie", text: "Nu am suferit o intervenție chirurgicală în ultimele 6 luni.", blocant: true },
-  { id: "sarcina",  text: "Nu sunt însărcinată și nu alăptez (dacă e cazul).", blocant: true },
-  { id: "interval", text: "Au trecut cel puțin 3 luni de la ultima mea donare de sânge.", blocant: true }
+/* --- Testimoniale (DEMO) ------------------------------------------------ */
+SOI.TESTIMONIALE = [
+  { autor: "Mama lui David", text: "Când am primit diagnosticul, ni s-a părut că lumea se oprește. Oamenii care au donat ne-au arătat că nu suntem singuri. Fiecare leu a fost o îmbrățișare." },
+  { autor: "Familia Anei", text: "Ana e acasă, aleargă și râde. Asta au făcut donațiile voastre. Nu există cuvinte pentru recunoștința noastră." },
+  { autor: "Un donator lunar", text: "Donez 50 de lei pe lună, cât două cafele pe săptămână. Când citesc actualizările campaniilor, știu exact unde a ajuns fiecare leu." },
+  { autor: "Sponsor — IT Nova", text: "Am redirecționat 20% din impozitul pe profit. Ne-a costat zero și a plătit o treime dintr-o operație. Orice firmă poate face asta." }
 ];
 
-/* --- Intrebari frecvente ---------------------------------------------- */
+/* --- Premii / recunoașteri (DEMO) --------------------------------------- */
+SOI.PREMII = [
+  { an: "2025", titlu: "Gala Societății Civile", detaliu: "Premiul I — secțiunea Sănătate" },
+  { an: "2024", titlu: "ONG-ul Anului", detaliu: "Nominalizare — campanii medicale" },
+  { an: "2023", titlu: "Premiul Comunității", detaliu: "Pentru transparență în raportare" }
+];
+
+/* --- Statistici (DEMO) --------------------------------------------------- */
+SOI.STATS = { copiiAjutati: 214, stransTotal: 3800000, donatori: 46500, sponsori: 180 };
+
+/* --- Întrebări frecvente ------------------------------------------------- */
 SOI.FAQ = [
-  { c: "Donare", q: "Cât durează o donare de sânge?",
-    a: "Recoltarea propriu-zisă durează 8–12 minute. Cu tot cu completarea chestionarului, consultul medical și cele 10–15 minute de odihnă de după, rezervă-ți aproximativ o oră." },
-  { c: "Donare", q: "Cât sânge se recoltează?",
-    a: "Aproximativ 450 ml, adică sub 10% din volumul total de sânge al unui adult. Organismul reface volumul de lichid în 24–48 de ore, iar globulele roșii în câteva săptămâni." },
-  { c: "Donare", q: "Doare?",
-    a: "Senzația este comparabilă cu o analiză de sânge obișnuită: o înțepătură scurtă la introducerea acului. Restul procedurii este nedureroasă." },
-  { c: "Eligibilitate", q: "Cât de des pot dona?",
-    a: "În general este necesar un interval de minimum 3 luni între donările de sânge integral. Numărul maxim de donări pe an diferă pentru bărbați și femei — medicul din centru îți confirmă intervalul potrivit pentru tine." },
-  { c: "Eligibilitate", q: "Pot dona dacă am tatuaje?",
-    a: "Da, dar de regulă după o perioadă de așteptare de 6 luni de la efectuarea tatuajului sau piercingului. Aceeași regulă se aplică pentru unele tratamente stomatologice." },
-  { c: "Eligibilitate", q: "Pot dona dacă iau medicamente?",
-    a: "Depinde de medicament. Unele tratamente nu reprezintă un impediment, altele impun o pauză. Menționează medicul din centru toate medicamentele pe care le iei — el decide." },
-  { c: "Eligibilitate", q: "Pot dona dacă am avut COVID sau altă infecție?",
-    a: "Da, după vindecarea completă și o perioadă de așteptare stabilită de medic. Prezintă-te la centru doar dacă te simți complet sănătos." },
-  { c: "Pregătire", q: "Ce trebuie să fac înainte de donare?",
-    a: "Dormi bine, mănâncă o masă ușoară (evită mâncarea grasă), bea multe lichide, evită alcoolul 48 de ore și fumatul cu o oră înainte. Nu veni pe stomacul gol." },
-  { c: "Pregătire", q: "Ce acte îmi trebuie?",
-    a: "Cartea de identitate. În unele centre îți poate fi cerut și cardul de sănătate — verifică telefonic înainte." },
-  { c: "După donare", q: "Ce fac după ce donez?",
-    a: "Rămâi 10–15 minute la centru, bea lichide, evită efortul fizic intens și consumul de alcool în ziua respectivă și nu fuma în prima oră. Dacă ameșești, întinde-te și ridică picioarele." },
-  { c: "După donare", q: "Ce se întâmplă cu sângele donat?",
-    a: "Este testat pentru boli transmisibile, apoi separat în componente: globule roșii, plasmă și trombocite. Astfel, o singură donare poate ajuta până la trei pacienți diferiți." },
-  { c: "Beneficii", q: "Ce primesc ca donator?",
-    a: "Analize gratuite ale sângelui donat, o zi liberă de la locul de muncă în ziua donării și beneficiile prevăzute de lege pentru donatori. Cel mai important beneficiu rămâne însă cel pe care nu-l vezi: un pacient care apucă ziua de mâine." },
-  { c: "Grupe", q: "Ce înseamnă „donator universal”?",
-    a: "Grupa 0 negativ poate dona globule roșii oricărei alte grupe, de aceea este cea mai căutată în urgențe. La plasmă lucrurile stau invers: AB este donatorul universal." },
-  { c: "Grupe", q: "Nu-mi știu grupa de sânge. Pot dona?",
-    a: "Da. Grupa se determină gratuit în centrul de donare, înainte de recoltare. Nu ai nevoie de analize făcute în prealabil." }
-];
-
-/* --- Mituri ------------------------------------------------------------ */
-SOI.MITURI = [
-  { mit: "Donarea te slăbește pentru mult timp.",
-    adevar: "Volumul de lichid se reface în 24–48 de ore. Majoritatea donatorilor își reiau activitățile normale în aceeași zi." },
-  { mit: "Poți lua o boală donând sânge.",
-    adevar: "Tot materialul folosit este steril și de unică folosință. Riscul de infectare prin donare este zero." },
-  { mit: "Dacă am o grupă comună, sângele meu nu e necesar.",
-    adevar: "Exact invers: grupele comune sunt cele mai cerute, pentru că cei mai mulți pacienți le au. Nevoia este permanentă." },
-  { mit: "Sângele se poate produce în laborator.",
-    adevar: "Nu există încă niciun substitut. Singura sursă de sânge pentru un pacient este un alt om." }
+  { c: "Donații", q: "Cum ajunge donația mea la copil?",
+    a: "Fiecare campanie are un cont dedicat. Banii se folosesc exclusiv pentru costurile medicale ale cazului respectiv — clinică, transport, tratament — iar fiecare plată este documentată în actualizările campaniei." },
+  { c: "Donații", q: "Pot dona lunar?",
+    a: "Da. Donația recurentă este forma de sprijin cea mai valoroasă, pentru că ne permite să ne angajăm la cazuri noi știind pe ce ne putem baza. O poți opri oricând." },
+  { c: "Donații", q: "Primesc dovada donației?",
+    a: "Da, primești automat pe e-mail confirmarea fiecărei donații. La cerere, eliberăm și documente pentru deducerea fiscală." },
+  { c: "Redirecționare 3,5%", q: "Ce este formularul 230?",
+    a: "Salariații pot direcționa 3,5% din impozitul pe venit deja plătit statului către o organizație nonprofit. Nu te costă nimic — e o parte din impozit care oricum s-a reținut. Se depune o dată pe an." },
+  { c: "Redirecționare 3,5%", q: "Până când pot depune formularul 230?",
+    a: "De regulă până pe 25 mai a anului curent, pentru veniturile anului precedent. Îl poți depune online prin SPV, prin noi sau direct la ANAF." },
+  { c: "Sponsorizări", q: "Cum funcționează sponsorizarea de 20% pentru firme?",
+    a: "Firmele plătitoare de impozit pe profit pot direcționa 20% din impozitul datorat (în limita a 0,75% din cifra de afaceri) către un ONG, în baza unui contract de sponsorizare. Suma se scade din impozit — costul real pentru firmă este zero." },
+  { c: "Sponsorizări", q: "Ce primește firma în schimb?",
+    a: "Contract de sponsorizare, raport de utilizare a fondurilor, prezența în galeria sponsorilor și, la campaniile mari, menționarea în comunicarea publică. Dar cel mai important: un copil operat." },
+  { c: "Transparență", q: "De unde știu că banii ajung unde trebuie?",
+    a: "Fiecare caz este verificat medical înainte de lansare, plățile se fac direct către clinici acolo unde este posibil, iar rapoartele anuale sunt publice. Actualizările campaniilor arată stadiul fiecărui caz." },
+  { c: "Transparență", q: "Cine alege cazurile?",
+    a: "Un consultant medical evaluează dosarul, iar echipa verifică situația familiei. Prioritate au urgențele — cazurile în care întârzierea operației pune viața în pericol." },
+  { c: "Cazuri", q: "Am un copil bolnav. Cum deschid o campanie?",
+    a: "Scrie-ne prin pagina de contact, cu diagnosticul și documentele medicale. Răspundem în cel mult 3 zile lucrătoare. Dacă dosarul este eligibil, campania se lansează în aproximativ o săptămână." },
+  { c: "Cazuri", q: "Ce se întâmplă dacă se strânge mai mult decât suma necesară?",
+    a: "Surplusul se mută, cu acordul donatorilor exprimat la donare, către următorul caz urgent de pe platformă. Totul se anunță transparent în actualizările campaniei." }
 ];
