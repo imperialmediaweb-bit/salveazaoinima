@@ -726,3 +726,30 @@ p  { text-wrap: pretty; }
 .hero-viz { transition: transform .5s var(--ease); transform-style: preserve-3d; }
 .hero-viz .hero-viz__core { transform: translateZ(46px); }
 .hero-viz .hero-chip { transform-style: preserve-3d; }
+
+/* ==========================================================================
+   Finisaj: detaliile care fac diferența
+   ========================================================================== */
+/* titluri echilibrate pe randuri (fara cuvinte orfane) */
+h1, h2, h3 { text-wrap: balance; }
+
+/* selectia de text in culorile brandului */
+::selection { background: var(--red-500); color: #fff; }
+
+/* ancorele (#doneaza, #trei-cinci…) nu se mai ascund sub header */
+[id] { scroll-margin-top: 96px; }
+
+/* randurile lungi de text raman citibile */
+.card > p, .acc__body p, .timeline__text { max-width: 65ch; }
+
+/* cifre aliniate oriunde apar sume */
+.stat__n, .progress-meta, .amount-pill, .f230 dd { font-variant-numeric: tabular-nums; }
+
+/* imaginile din carduri nu "sar" la incarcare */
+.case-card__media, .case-media { background: var(--surface-2); }
+
+/* butoanele au si stare de apasare, nu doar hover */
+.btn:active { transform: translateY(1px) scale(.985); box-shadow: var(--shadow-sm); }
+
+/* inelul de focus respecta culoarea temei pe fundal rosu */
+.section--deep :focus-visible, .hero-slide :focus-visible, .ftr :focus-visible { outline-color: #fff; }
