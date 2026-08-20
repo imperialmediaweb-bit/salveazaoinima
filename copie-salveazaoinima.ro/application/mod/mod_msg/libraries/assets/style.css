@@ -1,0 +1,150 @@
+.mod_msg_notify .badge {
+	position: absolute; 
+	top: 4px; 
+    padding: 3px 5px 2px 5px;
+    font-size: 10px;
+    letter-spacing: .1px;
+    vertical-align: baseline;
+    border-radius: 100px;
+	right: 6px !important;
+}
+
+.mod_msg_notify .fa-caret-down {
+	display: none !important;
+}
+
+.mod_msg_notify > .dropdown-menu {
+    padding: 10px 15px;
+    min-width: 350px !important;
+}
+
+.mod_msg_notify .dropdown-menu .no-anchor {
+	padding: 0 !important;
+}
+
+.mod_msg_notify .dropdown-menu a {
+	color: #333;
+}
+
+.mod_msg_notify .dropdown-menu a:active,
+.mod_msg_notify .dropdown-menu a:focus,
+.mod_msg_notify .dropdown-menu a:hover {
+	color: #333;
+	background: #fff;
+}
+
+.mod_msg_notify .dropdown-menu a .list-group-item {
+	border: 0;
+	border-bottom: 1px solid #ddd;
+	border-radius: 0;
+}
+
+.no-anchor .list-group {
+	list-style: none;
+}
+
+.mod_msg_notify .list-group {
+	line-height: 16px;
+}
+
+.mod_msg_notify .media {
+	margin-top: 0;
+} 
+
+.mod_msg_notify .media a {
+	padding: 10px 20px;
+	display: block;
+}
+
+.mod_msg_notify .media-left, 
+.mod_msg_notify .media>.pull-left {
+    padding-right: 20px;
+    position: relative;
+}
+
+.mod_msg_notify .media-body, 
+.mod_msg_notify .media-left, 
+.mod_msg_notify .media-right {
+	display: table-cell;
+    vertical-align: top;
+}
+
+.mod_msg_notify .media-left i {
+	color: #fff;
+}
+
+.btn-rounded, .btn-rounded img, .btn-rounded.btn-labeled>b {
+    border-radius: 100px;
+}
+
+.mod_msg_notify .btn-icon.btn-xs, 
+.mod_msg_notify .input-group-xs>.input-group-btn>.btn.btn-icon {
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+.mod_msg_notify .btn-group-xs>.btn, 
+.mod_msg_notify .btn-xs {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.6666667;
+}
+
+.mod_msg_notify .not-read, 
+.mod_msg_notify .new {
+	background: #ccebff !important;
+	font-weight: bold;
+}
+
+.mod_msg_notify .not-read:hover a, 
+.mod_msg_notify .new:hover a {
+	background: #b3e0ff !important;
+}
+
+
+.mod_msg_notify .dropdown-content-heading {
+    padding: 20px;
+    line-height: 1.5384616;
+    font-size: 12px;
+}
+
+.mod_msg_notify > ul {
+	padding: 0 !important;
+}
+
+.msg-notify-content{
+	margin: 0 !important;
+}
+
+.mod_msg_notify .icons-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    line-height: 1;
+    font-size: 0;
+}
+
+.mod_msg_notify .icons-list > li:first-child {
+    margin-left: 0;
+}
+.mod_msg_notify .icons-list > li {
+    position: relative;
+    display: inline-block;
+    font-size: 13px;
+}
+
+.mod_msg_notify .icons-list > li {
+	color: #333;
+}
+
+/* Provizoriu */
+.model_initials_container{
+	background: rgba(236, 64, 122, 1);
+}
+
+.msg-notify-content {
+	max-height: 300px;
+	overflow: auto;
+}
+
+
