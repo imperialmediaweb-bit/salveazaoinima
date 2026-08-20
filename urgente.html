@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ro" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cereri urgente de sânge · Salvează o Inimă</title>
+<meta name="description" content="Vezi pacienții care au nevoie de sânge acum, filtrează după grupa ta și orașul tău, sau publică o cerere.">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="Cereri urgente de sânge · Salvează o Inimă">
+<meta property="og:description" content="Vezi pacienții care au nevoie de sânge acum, filtrează după grupa ta și orașul tău, sau publică o cerere.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ro_RO">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/plus-jakarta-sans-latin.woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23dc1440' d='M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z'/%3E%3C/svg%3E">
+<script>(function(){try{var t=JSON.parse(localStorage.getItem('soi-theme'));if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
+</head>
+<body>
+<a class="skip" href="#main">Sari la conținut</a>
+<div class="progress" data-progress></div>
+<header class="hdr" data-hdr>
+  <div class="wrap hdr__in">
+    <a class="logo" href="index.html">
+      <span class="logo__mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z"/></svg></span>
+      <span>Salvează <span class="grad">o Inimă</span></span>
+    </a>
+    <nav class="nav" data-nav aria-label="Navigație principală">
+      <a href="index.html">Acasă</a>
+      <a href="doneaza.html">Donează</a>
+      <a href="urgente.html">Cereri urgente</a>
+      <a href="compatibilitate.html">Grupe de sânge</a>
+      <a href="centre.html">Centre</a>
+      <a href="faq.html">Întrebări</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="hdr__actions">
+      <button class="icon-btn" data-theme-toggle type="button" aria-label="Comută tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="btn btn--sm hide-sm" href="programare.html">Donează</a>
+      <button class="icon-btn burger" data-burger type="button" aria-label="Meniu" aria-expanded="false" aria-controls="nav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<section class="phead">
+  <div class="blobs" aria-hidden="true"><span class="blob blob--1"></span><span class="blob blob--2"></span></div>
+  <div class="wrap">
+    <p class="crumbs"><a href="index.html">Acasă</a> · Cereri urgente</p>
+    <h1>Cine are nevoie de sânge acum</h1>
+    <p class="lead mt-2" style="max-width:44rem">Filtrează după grupa ta și vezi imediat pacienții pe care îi poți ajuta. Sau publică o cerere, dacă tu ești cel care caută.</p>
+  </div>
+</section>
+
+<section class="section" data-urgente>
+  <div class="wrap">
+    <div class="toolbar">
+      <select class="select" data-urg-compat aria-label="Grupa mea sanguină"></select>
+      <select class="select" data-urg-grupa aria-label="Filtrează după grupa cerută"></select>
+      <select class="select" data-urg-oras aria-label="Filtrează după oraș"></select>
+      <button class="btn btn--ghost btn--sm" type="button" data-urg-reset>Resetează</button>
+      <span class="badge badge--accent" data-urg-count></span>
+    </div>
+    <div class="grid" data-urg-list></div>
+
+    <div class="mt-4" id="publica">
+      <div class="section__head rv" style="margin-bottom:1.5rem">
+        <span class="eyebrow">Ai nevoie de ajutor?</span>
+        <h2>Publică o cerere</h2>
+        <p class="lead mt-2">Descrie pe scurt situația. Cererea apare imediat în lista de mai sus, filtrabilă după grupă și oraș.</p>
+      </div>
+      <form class="card" data-urg-form novalidate>
+        <div class="grid g2">
+          <label class="field"><span>Grupa necesară <span class="req">*</span></span>
+            <select class="select" name="grupa" data-required></select>
+            <span class="field-err">Alege grupa.</span>
+          </label>
+          <label class="field"><span>Nivel de urgență <span class="req">*</span></span>
+            <select class="select" name="urgenta" data-required>
+              <option value="critica">Critică — în următoarele 24–48 h</option>
+              <option value="ridicata">Ridicată — în această săptămână</option>
+              <option value="medie">Medie — tratament pe termen lung</option>
+            </select>
+            <span class="field-err">Alege nivelul.</span>
+          </label>
+          <label class="field"><span>Pacient (prenume și vârstă) <span class="req">*</span></span>
+            <input class="input" type="text" name="pacient" data-required placeholder="Andrei M., 34 ani">
+            <span class="field-err">Completează acest câmp.</span>
+          </label>
+          <label class="field"><span>Spital <span class="req">*</span></span>
+            <input class="input" type="text" name="spital" data-required placeholder="Spitalul Județean">
+            <span class="field-err">Completează spitalul.</span>
+          </label>
+          <label class="field"><span>Oraș <span class="req">*</span></span>
+            <input class="input" type="text" name="oras" data-required placeholder="Cluj-Napoca">
+            <span class="field-err">Completează orașul.</span>
+          </label>
+          <label class="field"><span>Unități necesare</span>
+            <input class="input" type="number" name="unitati" min="1" max="50" value="3">
+          </label>
+          <label class="field"><span>Zile rămase</span>
+            <input class="input" type="number" name="zile" min="1" max="365" value="7">
+          </label>
+          <label class="field"><span>Context medical (opțional)</span>
+            <input class="input" type="text" name="nevoie" placeholder="Intervenție chirurgicală programată">
+          </label>
+        </div>
+        <div class="alert alert--warn mb-2"><div><strong>Protejează datele pacientului.</strong>Nu publica CNP, diagnostic complet, număr de salon sau alte date sensibile. Prenumele și vârsta sunt suficiente.</div></div>
+        <button class="btn" type="submit">Publică cererea</button>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div>
+        <a class="logo mb-2" href="index.html"><span class="logo__mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z"/></svg></span><span>Salvează <span class="grad">o Inimă</span></span></a>
+        <p class="small muted" style="max-width:26rem">Un om sănătos poate salva până la trei vieți în mai puțin de o oră. Atât durează o donare de sânge.</p>
+        <div class="row mt-2">
+          <a class="btn btn--sm" href="programare.html">Programează-te</a>
+          <a class="btn btn--sm btn--ghost" href="urgente.html">Cereri urgente</a>
+        </div>
+      </div>
+      <div>
+        <h4>Donatori</h4>
+        <ul>
+          <li><a href="doneaza.html">Cum donez</a></li>
+          <li><a href="doneaza.html#eligibilitate">Sunt eligibil?</a></li>
+          <li><a href="programare.html">Programare</a></li>
+          <li><a href="compatibilitate.html">Grupe de sânge</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Pacienți</h4>
+        <ul>
+          <li><a href="urgente.html">Cereri active</a></li>
+          <li><a href="urgente.html#publica">Publică o cerere</a></li>
+          <li><a href="centre.html">Centre de donare</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Informații</h4>
+        <ul>
+          <li><a href="faq.html">Întrebări frecvente</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="contact.html#despre">Despre proiect</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr__bot">
+      <span>&copy; <span data-year>2026</span> Salvează o Inimă. Informațiile de pe site au caracter orientativ și nu înlocuiesc sfatul medical.</span>
+      <span>În caz de urgență medicală sună la <strong>112</strong>.</span>
+    </div>
+  </div>
+</footer>
+<div class="toast-host" role="status" aria-live="polite"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/features.js"></script>
+</body>
+</html>
