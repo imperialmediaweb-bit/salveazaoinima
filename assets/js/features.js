@@ -16,7 +16,7 @@
   /* ---------- card de caz (folosit peste tot) ---------- */
   function cardCaz(c, extraClass) {
     var p = pct(c), gata = !c.activ || p >= 100;
-    return '<article class="card card--hover case-card ' + (extraClass || "") + '">' +
+    return '<article class="card card--hover case-card ' + (extraClass || "") + '" data-tilt>' +
       '<a class="case-card__media" href="caz.html?c=' + esc(c.slug) + '" aria-label="' + esc(c.nume) + '">' +
         (gata ? '<span class="ribbon ribbon--done">Reușit</span>'
               : (c.urgent ? '<span class="ribbon">Urgent</span>' : "")) +
@@ -44,37 +44,99 @@
     if (!heroHost) return;
 
     /* --- slide-uri hero --- */
+    var HEART_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.6-4.7-9.7-9.1A5.65 5.65 0 0 1 12 6.15a5.65 5.65 0 0 1 9.7 5.75C19.6 16.3 12 21 12 21Z"/></svg>';
+    var ECG = '<svg class="ecg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">' +
+      '<path d="M0,60 H150 L165,60 175,28 188,92 200,60 H420 L435,60 445,22 458,96 470,60 H700 L715,60 725,30 738,90 750,60 H980 L995,60 1005,25 1018,94 1030,60 H1200"/></svg>';
+
     var urgente = SOI.CAZURI.filter(function (c) { return c.activ && c.urgent; });
     var primul = urgente[0];
+
+    function vizInima() {
+      return '<div class="hero-viz" aria-hidden="true">' +
+        '<span class="hero-viz__ring"></span><span class="hero-viz__ring"></span><span class="hero-viz__ring"></span>' +
+        '<span class="hero-chip glass" style="top:4%;left:50%;transform:translateX(-50%)">🫀 ' + SOI.STATS.copiiAjutati + ' copii operați</span>' +
+        '<span class="hero-chip glass" style="bottom:14%;left:-4%">♥ ' + SOI.STATS.donatori.toLocaleString("ro-RO") + ' donatori</span>' +
+        '<span class="hero-chip glass" style="bottom:14%;right:-4%">✓ 100% transparent</span>' +
+        '<div class="hero-viz__core">' + HEART_SVG + '</div></div>';
+    }
+    function vizCaz(c) {
+      var p = pct(c);
+      return '<div class="glass glass-case" data-tilt aria-hidden="true">' +
+        '<div class="row" style="flex-wrap:nowrap;gap:.9rem;margin-bottom:1rem">' +
+          '<div style="width:3.6rem;height:3.6rem;flex:none;border-radius:50%;overflow:hidden">' +
+            '<div class="avatar-ph" style="font-size:1.3rem">' + SOI.initiale(c.nume) + '</div></div>' +
+          '<div><strong style="font-size:1.1rem">' + esc(c.nume) + ', ' + c.varsta + ' ani</strong><br>' +
+          '<span style="font-size:.85rem;color:#ffe3e7">' + esc(c.diagnostic) + '</span></div></div>' +
+        '<div class="progress-line"><i style="width:' + p + '%"></i></div>' +
+        '<div class="progress-meta"><span><strong>' + SOI.bani(stransTotal(c)) + '</strong></span><span>' + p + '% din ' + SOI.bani(c.target) + '</span></div>' +
+        '</div>';
+    }
+    function viz235() {
+      return '<div class="glass glass-235" data-tilt aria-hidden="true">' +
+        '<div class="big">3,5%</div>' +
+        '<p style="color:#ffe3e7;font-size:.95rem;margin-top:.4rem">din impozitul tău, către o inimă mică</p>' +
+        '<svg class="sig-line" width="150" height="34" viewBox="0 0 150 34" fill="none" aria-hidden="true">' +
+        '<path d="M4 26 C 22 4, 34 30, 52 18 S 86 6, 100 20 S 132 30, 146 12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>' +
+        '</div>';
+    }
+
     var slides = [
       { tag: "Împreună pentru inimi mici", titlu: 'Fiecare inimă merită <span class="shimmer-text">să bată</span>.',
         text: "Strângem fonduri pentru operațiile pe cord ale copiilor din familii care nu și le pot permite. 100% transparent, caz cu caz.",
         cta: [["cazuri.html", "Vezi cazurile active", ""], ["doneaza.html", "Donează acum", "btn--light"]],
-        img: "assets/img/slides/1.jpg", grad: "radial-gradient(100% 140% at 90% 10%, rgba(255,160,120,.5), transparent 55%), linear-gradient(130deg,#9c0e1f, #e41127 60%, #ff5a45)" },
+        viz: vizInima(),
+        grad: "radial-gradient(100% 140% at 90% 10%, rgba(255,160,120,.5), transparent 55%), linear-gradient(130deg,#9c0e1f, #e41127 60%, #ff5a45)" },
       primul && { tag: "Caz urgent", titlu: esc(primul.nume) + " are nevoie de tine <em>acum</em>.",
-        text: esc(primul.diagnostic) + ". S-au strâns " + SOI.bani(stransTotal(primul)) + " din " + SOI.bani(primul.target) + " — fiecare zi contează.",
+        text: esc(primul.diagnostic) + ". Fiecare zi de așteptare contează — ajut-o să ajungă la operație.",
         cta: [["caz.html?c=" + primul.slug + "#doneaza", "Donează pentru " + esc(primul.nume), ""], ["caz.html?c=" + primul.slug, "Citește povestea", "btn--light"]],
-        img: "assets/img/slides/2.jpg", grad: "radial-gradient(110% 150% at 15% 100%, rgba(255,120,140,.45), transparent 60%), linear-gradient(130deg,#c60e21, #e41127 55%, #f0455a)" },
+        viz: vizCaz(primul),
+        grad: "radial-gradient(110% 150% at 15% 100%, rgba(255,120,140,.45), transparent 60%), linear-gradient(130deg,#c60e21, #e41127 55%, #f0455a)" },
       { tag: "Nu te costă nimic", titlu: 'Redirecționează <span class="hl-amber">3,5%</span> din impozit.',
-        text: "Statul îți oprește oricum impozitul. Tu decizi unde ajunge o parte din el: completezi formularul 230 în 2 minute, noi facem restul.",
+        text: "Statul îți oprește oricum impozitul. Tu decizi unde ajunge o parte din el: formularul 230, semnat pe ecran, în 2 minute.",
         cta: [["doneaza.html#trei-cinci", "Completează formularul", ""], ["doneaza.html#firme", "Ești firmă? 20%", "btn--light"]],
-        img: "assets/img/slides/3.jpg", grad: "radial-gradient(100% 140% at 85% 0%, rgba(120,200,255,.4), transparent 55%), linear-gradient(130deg,#0e36bd, #1142e4 55%, #4f74ff)" }
+        viz: viz235(),
+        grad: "radial-gradient(100% 140% at 85% 0%, rgba(120,200,255,.4), transparent 55%), linear-gradient(130deg,#0e36bd, #1142e4 55%, #4f74ff)" }
     ].filter(Boolean);
 
     $(".slider__track", heroHost).innerHTML = slides.map(function (s) {
       return '<div class="slider__slide"><div class="hero-slide">' +
         '<div class="hero-slide__bg" style="background:' + s.grad + '">' +
-          '<img src="' + s.img + '" alt="" loading="eager" onerror="this.remove()">' +
-        '</div>' +
-        '<div class="hero-slide__in">' +
-          '<span class="hero-slide__tag">' + s.tag + '</span>' +
-          '<h2>' + s.titlu + '</h2><p>' + s.text + '</p>' +
-          '<div class="row">' + s.cta.map(function (c) {
-            return '<a class="btn btn--lg ' + c[2] + '" href="' + c[0] + '">' + c[1] + '</a>';
-          }).join("") + '</div>' +
-        '</div></div></div>';
+          '<img src="assets/img/slides/hero.jpg" alt="" loading="eager" onerror="this.remove()">' +
+        '</div>' + ECG +
+        '<div class="hero-slide__inner"><div class="hero-grid">' +
+          '<div class="hero-slide__in">' +
+            '<span class="hero-slide__tag">' + s.tag + '</span>' +
+            '<h2>' + s.titlu + '</h2><p>' + s.text + '</p>' +
+            '<div class="row">' + s.cta.map(function (c) {
+              return '<a class="btn btn--lg ' + c[2] + '" href="' + c[0] + '">' + c[1] + '</a>';
+            }).join("") + '</div>' +
+          '</div>' +
+          '<div class="hero-side">' + s.viz + '</div>' +
+        '</div></div>' +
+      '</div></div>';
     }).join("");
     new SOI.Slider(heroHost, { autoplay: 6500 });
+
+    /* parallax discret pe elementele hero */
+    if (!SOI.reduced && window.matchMedia("(hover: hover)").matches) {
+      heroHost.addEventListener("pointermove", function (e) {
+        var r = heroHost.getBoundingClientRect();
+        var dx = (e.clientX - r.left) / r.width - .5;
+        var dy = (e.clientY - r.top) / r.height - .5;
+        SOI.$$(".hero-chip", heroHost).forEach(function (c, i) {
+          var d = 10 + (i % 3) * 7;
+          c.style.translate = (dx * d).toFixed(1) + "px " + (dy * d).toFixed(1) + "px";
+        });
+        var viz = SOI.$(".hero-viz", heroHost);
+        if (viz) viz.style.transform = "perspective(850px) rotateY(" + (dx * 13).toFixed(2) + "deg) rotateX(" + (dy * -9).toFixed(2) + "deg)";
+      });
+      heroHost.addEventListener("pointerleave", function () {
+        SOI.$$(".hero-chip", heroHost).forEach(function (c) { c.style.translate = ""; });
+        var viz = SOI.$(".hero-viz", heroHost);
+        if (viz) viz.style.transform = "";
+      });
+    }
+    SOI.initTilt(heroHost);
 
     /* --- cazuri urgente: slider de carduri --- */
     var cazHost = $("[data-cazuri-slider]");
@@ -88,7 +150,7 @@
         autoplay: 5200, arrows: false,
         perView: function () { return window.innerWidth > 980 ? 3 : (window.innerWidth > 640 ? 2 : 1); }
       });
-      SOI.initProgress(cazHost);
+      SOI.initProgress(cazHost); SOI.initTilt(cazHost);
     }
 
     /* --- testimoniale --- */
@@ -147,7 +209,7 @@
       list.innerHTML = res.length
         ? res.map(function (c) { return cardCaz(c); }).join("")
         : '<div class="empty"><p><strong>Nicio campanie pentru filtrele alese.</strong></p></div>';
-      SOI.initProgress(list);
+      SOI.initProgress(list); SOI.initTilt(list);
     }
     q.addEventListener("input", SOI.debounce(render, 180));
     stare.addEventListener("change", render);
@@ -275,6 +337,7 @@
     if (alteHost && alte.length) {
       alteHost.innerHTML = '<h2 class="mb-3">Alți copii care așteaptă</h2>' +
         '<div class="grid g3">' + alte.map(function (x) { return cardCaz(x); }).join("") + '</div>';
+      SOI.initTilt(alteHost);
     }
 
     /* bara lipita jos pe mobil */

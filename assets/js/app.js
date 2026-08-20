@@ -96,13 +96,16 @@
     var target = parseFloat(el.dataset.count || "0");
     var dur = parseInt(el.dataset.dur || "1700", 10);
     var suffix = el.dataset.suffix || "", prefix = el.dataset.prefix || "";
-    if (reduced) { el.textContent = prefix + target.toLocaleString("ro-RO") + suffix; return; }
+    var dec = parseInt(el.dataset.dec || "0", 10);
+    function fmt(v) { return v.toLocaleString("ro-RO", { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+    if (reduced) { el.textContent = prefix + fmt(target) + suffix; return; }
     var t0 = null;
     function tick(ts) {
       if (t0 === null) t0 = ts;
       var p = Math.min((ts - t0) / dur, 1);
       var eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = prefix + Math.round(target * eased).toLocaleString("ro-RO") + suffix;
+      var v = target * eased;
+      el.textContent = prefix + fmt(dec ? v : Math.round(v)) + suffix;
       if (p < 1) requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
@@ -278,11 +281,35 @@
     }
   });
 
+  /* ---------- Înclinare 3D după cursor ---------- */
+  var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  SOI.initTilt = function (root) {
+    if (reduced || !fine) return;
+    $$("[data-tilt]", root || document).forEach(function (el) {
+      if (el.__tilt) return; el.__tilt = 1;
+      el.classList.add("tilt");
+      var raf = null;
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        el.style.setProperty("--gx", (px * 100) + "%");
+        el.style.setProperty("--gy", (py * 100) + "%");
+        if (raf) return;
+        raf = requestAnimationFrame(function () {
+          raf = null;
+          var rx = (py - .5) * -8, ry = (px - .5) * 9;
+          el.style.transform = "perspective(950px) rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg) translateZ(6px)";
+        });
+      });
+      el.addEventListener("pointerleave", function () { el.style.transform = ""; });
+    });
+  };
+
   /* ---------- An curent ---------- */
   $$("[data-year]").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 
   /* ---------- Pornire comună ---------- */
   document.addEventListener("DOMContentLoaded", function () {
-    SOI.reveal(); SOI.initCounters(); SOI.initProgress();
+    SOI.reveal(); SOI.initCounters(); SOI.initProgress(); SOI.initTilt();
   });
 })();
