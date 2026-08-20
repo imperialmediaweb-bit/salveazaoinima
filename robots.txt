@@ -1,0 +1,3 @@
+# Site in lucru - nu indexati nimic
+User-agent: *
+Disallow: /
