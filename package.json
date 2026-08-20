@@ -1,0 +1,15 @@
+{
+  "name": "salveazaoinima",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Site static Salvează o Inimă — servit ca atare, fără build.",
+  "scripts": {
+    "start": "http-server . -p ${PORT:-8080} -a 0.0.0.0 -c-1 -s"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
