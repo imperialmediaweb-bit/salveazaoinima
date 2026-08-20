@@ -50,15 +50,15 @@
       { tag: "Împreună pentru inimi mici", titlu: 'Fiecare inimă merită <span class="shimmer-text">să bată</span>.',
         text: "Strângem fonduri pentru operațiile pe cord ale copiilor din familii care nu și le pot permite. 100% transparent, caz cu caz.",
         cta: [["cazuri.html", "Vezi cazurile active", ""], ["doneaza.html", "Donează acum", "btn--light"]],
-        img: "assets/img/slides/1.jpg", grad: "linear-gradient(130deg,#1c060a 10%,#a30d1d 65%,#e41127)" },
+        img: "assets/img/slides/1.jpg", grad: "radial-gradient(100% 140% at 90% 10%, rgba(255,160,120,.5), transparent 55%), linear-gradient(130deg,#9c0e1f, #e41127 60%, #ff5a45)" },
       primul && { tag: "Caz urgent", titlu: esc(primul.nume) + " are nevoie de tine <em>acum</em>.",
         text: esc(primul.diagnostic) + ". S-au strâns " + SOI.bani(stransTotal(primul)) + " din " + SOI.bani(primul.target) + " — fiecare zi contează.",
         cta: [["caz.html?c=" + primul.slug + "#doneaza", "Donează pentru " + esc(primul.nume), ""], ["caz.html?c=" + primul.slug, "Citește povestea", "btn--light"]],
-        img: "assets/img/slides/2.jpg", grad: "linear-gradient(130deg,#0c0506 10%,#5e0c15 60%,#c60e21)" },
+        img: "assets/img/slides/2.jpg", grad: "radial-gradient(110% 150% at 15% 100%, rgba(255,120,140,.45), transparent 60%), linear-gradient(130deg,#c60e21, #e41127 55%, #f0455a)" },
       { tag: "Nu te costă nimic", titlu: 'Redirecționează <span class="hl-amber">3,5%</span> din impozit.',
         text: "Statul îți oprește oricum impozitul. Tu decizi unde ajunge o parte din el: completezi formularul 230 în 2 minute, noi facem restul.",
         cta: [["doneaza.html#trei-cinci", "Completează formularul", ""], ["doneaza.html#firme", "Ești firmă? 20%", "btn--light"]],
-        img: "assets/img/slides/3.jpg", grad: "linear-gradient(130deg,#1c060a,#0e36bd 75%,#1142e4)" }
+        img: "assets/img/slides/3.jpg", grad: "radial-gradient(100% 140% at 85% 0%, rgba(120,200,255,.4), transparent 55%), linear-gradient(130deg,#0e36bd, #1142e4 55%, #4f74ff)" }
     ].filter(Boolean);
 
     $(".slider__track", heroHost).innerHTML = slides.map(function (s) {
@@ -314,6 +314,60 @@
     })();
   }
 
+
+  /* ---------- semnatura pe canvas, fara librarii ---------- */
+  function SigPad(host) {
+    var cvs = host.querySelector("canvas");
+    var ctx = cvs.getContext("2d");
+    var ink = false, drawing = false, last = null;
+    function resize() {
+      var r = cvs.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+      var img = ink ? cvs.toDataURL() : null;
+      cvs.width = r.width * dpr; cvs.height = r.height * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.strokeStyle = "#0366d6";
+      if (img) { var im = new Image(); im.onload = function () { ctx.drawImage(im, 0, 0, r.width, r.height); }; im.src = img; }
+    }
+    function pos(e) {
+      var r = cvs.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+    cvs.addEventListener("pointerdown", function (e) {
+      drawing = true; last = pos(e); cvs.setPointerCapture(e.pointerId);
+      host.classList.remove("is-required");
+    });
+    cvs.addEventListener("pointermove", function (e) {
+      if (!drawing) return;
+      var p = pos(e);
+      ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+      last = p; ink = true; host.classList.add("has-ink");
+    });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
+      cvs.addEventListener(ev, function () { drawing = false; });
+    });
+    window.addEventListener("resize", SOI.debounce(resize, 200));
+    resize();
+    return {
+      goala: function () { return !ink; },
+      sterge: function () { ctx.clearRect(0, 0, cvs.width, cvs.height); ink = false; host.classList.remove("has-ink"); resize(); },
+      png: function () { return cvs.toDataURL("image/png"); }
+    };
+  }
+
+  function tipareste(zona) {
+    zona.classList.add("print-keep");
+    document.body.classList.add("print-doc");
+    var curat = function () {
+      zona.classList.remove("print-keep");
+      document.body.classList.remove("print-doc");
+      window.removeEventListener("afterprint", curat);
+    };
+    window.addEventListener("afterprint", curat);
+    window.print();
+    setTimeout(curat, 1500);
+  }
+
   /* =========================================================
      DONEAZĂ — tab-uri: donație / 3,5% / 20% firme
      ========================================================= */
@@ -351,56 +405,116 @@
     var f230 = $("[data-form-230]", host);
     if (f230) {
       var prev = $("[data-f230-preview]", host);
-      function refac() {
+      var pad = SigPad($("[data-sig]", host));
+      $("[data-sig-clear]", host).addEventListener("click", function () { pad.sterge(); });
+
+      function refac(cuSemnatura) {
         var fd = new FormData(f230);
+        var adresa = ["Str. " + (fd.get("strada") || "—"), "nr. " + (fd.get("numar") || "—")];
+        ["bloc", "scara", "etaj", "ap"].forEach(function (k) {
+          if (fd.get(k)) adresa.push(({ bloc: "bl. ", scara: "sc. ", etaj: "et. ", ap: "ap. " })[k] + fd.get(k));
+        });
+        adresa.push((fd.get("localitate") || "—") + ", jud. " + (fd.get("judet") || "—"));
+        if (fd.get("codpostal")) adresa.push("CP " + fd.get("codpostal"));
         var rows = [
-          ["Nume și prenume", (fd.get("nume") || "") + ""],
-          ["CNP", (fd.get("cnp") || "") + ""],
-          ["Adresă", (fd.get("adresa") || "") + ""],
-          ["E-mail", (fd.get("email") || "") + ""],
-          ["Perioada", (fd.get("doiani") ? "2 ani (distribuire până la revocare)" : "1 an")],
+          ["Nume", fd.get("nume")],
+          ["Iniţiala tatălui", fd.get("initiala")],
+          ["Prenume", fd.get("prenume")],
+          ["CNP", fd.get("cnp")],
+          ["Adresă", adresa.join(", ")],
+          ["Telefon", fd.get("telefon")], ["E-mail", fd.get("email")],
+          ["Perioada", fd.get("doiani") ? "2 ani (până la revocare)" : "1 an"],
           ["Organizația beneficiară", "Asociația Salvează o Inimă (demo)"],
           ["Procent direcționat", "3,5% din impozitul anual pe venit"]
         ];
-        prev.innerHTML = '<div class="f230"><h3>Previzualizare — Formular 230 (demo)</h3>' +
+        prev.innerHTML = '<div class="f230" data-print-zone><h3>Previzualizare — Formular 230 (demo)</h3>' +
           '<dl>' + rows.map(function (r) {
             return '<dt>' + esc(r[0]) + '</dt><dd>' + (esc(r[1]) || "&nbsp;") + '</dd>';
           }).join("") + '</dl>' +
-          '<p class="hint mt-2">Aceasta este o machetă demonstrativă, nu formularul oficial ANAF.</p></div>';
+          (cuSemnatura && !pad.goala()
+            ? '<p class="small muted mt-2" style="margin-bottom:0">Semnătura:</p><img class="sig" alt="Semnătura" src="' + pad.png() + '">'
+            : "") +
+          '<p class="hint mt-2">Machetă demonstrativă, nu formularul oficial ANAF. Originalul completează PDF-ul oficial F230 și îl transmite asociației, care îl depune la ANAF.</p></div>';
       }
-      f230.addEventListener("input", SOI.debounce(refac, 150));
+      f230.addEventListener("input", SOI.debounce(function () { refac(true); }, 150));
+
+      function valid230() {
+        var ok = SOI.validate(f230);
+        if (pad.goala()) {
+          $("[data-sig]", host).classList.add("is-required");
+          if (ok) SOI.toast("Desenează semnătura în chenar.", "err");
+          ok = false;
+        }
+        return ok;
+      }
       f230.addEventListener("submit", function (e) {
         e.preventDefault();
-        if (!SOI.validate(f230)) { SOI.toast("Verifică datele completate.", "err"); return; }
-        refac();
-        SOI.toast("Formularul e gata — folosește «Tipărește».", "ok");
+        if (!valid230()) { SOI.toast("Verifică datele completate.", "err"); return; }
+        refac(true);
+        SOI.toast("Formularul e gata — folosește «Tipărește / salvează PDF».", "ok");
       });
       var printBtn = $("[data-f230-print]", host);
       if (printBtn) printBtn.addEventListener("click", function () {
-        if (!SOI.validate(f230)) { SOI.toast("Completează întâi câmpurile obligatorii.", "err"); return; }
-        refac(); window.print();
+        if (!valid230()) return;
+        refac(true);
+        tipareste($("[data-f230-preview] [data-print-zone]", host));
       });
-      refac();
+      refac(false);
     }
 
-    /* — calculator 20% firme — */
+    /* — calculator 20% firme + contract sponsorizare — */
     var f20 = $("[data-calc-20]", host);
     if (f20) {
       var out = $("[data-calc-out]", host);
-      function calc() {
-        var profitTax = parseFloat($('[name="impozit"]', f20).value) || 0;
+      function suma20() {
+        var impozit = parseFloat($('[name="impozit"]', f20).value) || 0;
         var cifra = parseFloat($('[name="cifra"]', f20).value) || 0;
-        if (!profitTax || !cifra) { out.innerHTML = '<p class="muted small">Completează cele două sume ca să vezi cât poți sponsoriza fără niciun cost.</p>'; return; }
-        var lim1 = profitTax * 0.20, lim2 = cifra * 0.0075;
-        var suma = Math.max(0, Math.min(lim1, lim2));
+        if (!impozit || !cifra) return null;
+        return { impozit: impozit, cifra: cifra, lim1: impozit * 0.20, lim2: cifra * 0.0075,
+                 suma: Math.max(0, Math.min(impozit * 0.20, cifra * 0.0075)) };
+      }
+      function calc() {
+        var r = suma20();
+        if (!r) { out.innerHTML = '<p class="muted small">Completează cele două sume ca să vezi cât poți sponsoriza fără niciun cost.</p>'; return; }
         out.innerHTML =
-          '<div class="alert alert--ok"><div><strong>Poți sponsoriza ' + suma.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei cu cost zero.</strong>' +
-          'Limita este minimul dintre 20% din impozitul pe profit (' + lim1.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei) și 0,75% din cifra de afaceri (' +
-          lim2.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei). Suma se scade integral din impozitul datorat.</div></div>' +
-          '<a class="btn mt-2" href="contact.html">Cere contractul de sponsorizare</a>';
+          '<div class="alert alert--ok"><div><strong>Poți sponsoriza ' + r.suma.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei cu cost zero.</strong>' +
+          'Limita este minimul dintre 20% din impozitul pe profit (' + r.lim1.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei) și 0,75% din cifra de afaceri (' +
+          r.lim2.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + ' lei). Suma se scade integral din impozitul datorat.</div></div>';
       }
       f20.addEventListener("input", SOI.debounce(calc, 200));
       calc();
+
+      /* contract de sponsorizare generat din datele firmei */
+      var fc = $("[data-form-contract]", host);
+      if (fc) {
+        var cprev = $("[data-contract-preview]", host);
+        function contract() {
+          var fd = new FormData(fc);
+          var r = suma20();
+          var azi = SOI.dateRO(new Date());
+          cprev.innerHTML = '<div class="f230" data-print-zone>' +
+            '<h3>Contract de sponsorizare (model demo)</h3>' +
+            '<p class="small mt-2">Încheiat azi, ' + azi + ', între:</p>' +
+            '<dl>' +
+            '<dt>Sponsor</dt><dd>' + (esc(fd.get("firma")) || "&nbsp;") + '</dd>' +
+            '<dt>CUI</dt><dd>' + (esc(fd.get("cui")) || "&nbsp;") + '</dd>' +
+            '<dt>Reprezentant</dt><dd>' + (esc(fd.get("reprezentant")) || "&nbsp;") + '</dd>' +
+            '<dt>E-mail</dt><dd>' + (esc(fd.get("emailfirma")) || "&nbsp;") + '</dd>' +
+            '<dt>Beneficiar</dt><dd>Asociația Salvează o Inimă (demo)</dd>' +
+            '<dt>Suma sponsorizată</dt><dd>' + (fd.get("suma") ? Number(fd.get("suma")).toLocaleString("ro-RO") + " lei" : (r ? r.suma.toLocaleString("ro-RO", { maximumFractionDigits: 0 }) + " lei (calculată)" : "&nbsp;")) + '</dd>' +
+            '<dt>Destinația</dt><dd>Finanțarea operațiilor pe cord pentru copii</dd>' +
+            '</dl>' +
+            '<p class="hint mt-2">Model demonstrativ. Sponsorizarea se deduce conform Codului fiscal: min(20% din impozitul pe profit, 0,75% din cifra de afaceri). Alternativ, prin Declarația 177, ANAF virează direct suma rămasă nealocată.</p></div>';
+        }
+        fc.addEventListener("input", SOI.debounce(contract, 150));
+        fc.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!SOI.validate(fc)) { SOI.toast("Completează datele firmei.", "err"); return; }
+          contract();
+          tipareste($("[data-contract-preview] [data-print-zone]", host));
+        });
+        contract();
+      }
     }
   }
 

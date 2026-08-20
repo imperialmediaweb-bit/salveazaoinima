@@ -28,7 +28,7 @@
 
   --bg:            #ffffff;
   --bg-alt:        #f8f8f8;          /* griul deschis al originalului */
-  --bg-deep:       #1c060a;          /* rosu-negru pt. sectiuni intunecate */
+  --bg-deep:       #9c0e1f;          /* rosu profund pt. sectiunile colorate */
   --surface:       #ffffff;
   --surface-2:     #f2f2f2;
   --border:        #e6e6e6;
@@ -91,6 +91,7 @@
   --shadow-md: 0 6px 18px rgba(0, 0, 0, .5);
   --shadow-lg: 0 24px 60px rgba(0, 0, 0, .6);
   --shadow-accent: 0 10px 34px rgba(228, 17, 39, .34);
+  --bg-deep: #7d0d1b;
 }
 
 /* ---------- Reset ---------- */
@@ -146,8 +147,14 @@ p  { text-wrap: pretty; }
 .wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gut); }
 .section { padding-block: clamp(3.6rem, 8vw, 6.6rem); }
 .section--alt { background: var(--bg-alt); }
-.section--deep { background: var(--bg-deep); color: #f7edef; }
-.section--deep .lead, .section--deep p { color: #d9c6ca; }
+.section--deep {
+  background:
+    radial-gradient(90% 120% at 85% 0%, rgba(255, 122, 92, .35), transparent 55%),
+    radial-gradient(70% 100% at 10% 100%, rgba(17, 66, 228, .28), transparent 55%),
+    linear-gradient(135deg, #b01023, #e41127 55%, #c60e21);
+  color: #fff;
+}
+.section--deep .lead, .section--deep p { color: #ffe3e7; }
 .section__head { max-width: 46rem; margin-bottom: clamp(2rem, 4vw, 3.2rem); }
 .section__head--center { margin-inline: auto; text-align: center; }
 .grid { display: grid; gap: clamp(1rem, 2.2vw, 1.6rem); }
@@ -303,7 +310,7 @@ p  { text-wrap: pretty; }
 .hero-slide__bg img { width: 100%; height: 100%; object-fit: cover; }
 .hero-slide::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(12deg, rgba(31,8,15,.88) 18%, rgba(31,8,15,.45) 55%, rgba(31,8,15,.15));
+  background: linear-gradient(12deg, rgba(140, 12, 27, .82) 16%, rgba(160, 14, 30, .38) 55%, rgba(180, 16, 34, .08));
 }
 .hero-slide__in { padding: clamp(1.6rem, 4vw, 3.2rem); padding-bottom: clamp(3rem, 6vw, 4.2rem); max-width: 44rem; }
 .hero-slide__tag {
@@ -497,7 +504,12 @@ p  { text-wrap: pretty; }
 .spread { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
 .toolbar { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; margin-bottom: 1.6rem; }
 .toolbar .input, .toolbar .select { width: auto; min-width: 11rem; flex: 1 1 11rem; }
-.phead { padding-block: clamp(2.4rem, 5.5vw, 4rem) clamp(1.4rem, 3vw, 2.2rem); background: var(--bg-alt); }
+.phead {
+  padding-block: clamp(2.4rem, 5.5vw, 4rem) clamp(1.4rem, 3vw, 2.2rem);
+  background:
+    radial-gradient(70% 130% at 90% 0%, color-mix(in srgb, var(--blue-soft) 80%, transparent), transparent 55%),
+    linear-gradient(165deg, var(--red-50), var(--bg) 75%);
+}
 .crumbs { font-size: .84rem; color: var(--text-mute); margin-bottom: .9rem; }
 .crumbs a:hover { color: var(--accent); }
 .empty { text-align: center; padding: 3rem 1rem; color: var(--text-mute); border: 1px dashed var(--border-strong); border-radius: var(--r-lg); }
@@ -509,16 +521,21 @@ p  { text-wrap: pretty; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 
 /* ---------- Footer ---------- */
-.ftr { background: var(--bg-deep); color: #e7d5d9; padding-block: clamp(3rem, 6vw, 4.5rem) 2rem; }
+.ftr {
+  background:
+    radial-gradient(80% 120% at 90% 0%, rgba(255, 122, 92, .22), transparent 55%),
+    linear-gradient(160deg, #8a0f1c, #a30d1d 60%, #8a0f1c);
+  color: #ffd9de; padding-block: clamp(3rem, 6vw, 4.5rem) 2rem;
+}
 .ftr__grid { display: grid; gap: 2.2rem; grid-template-columns: 1.4fr repeat(3, 1fr); }
 @media (max-width: 800px) { .ftr__grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 480px) { .ftr__grid { grid-template-columns: 1fr; } }
-.ftr h4 { font-size: .8rem; font-family: var(--font); font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: #b99aa1; margin-bottom: .9rem; }
+.ftr h4 { font-size: .8rem; font-family: var(--font); font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: #ffb1ba; margin-bottom: .9rem; }
 .ftr ul { list-style: none; padding: 0; display: grid; gap: .55rem; }
-.ftr a { color: #d9c2c7; font-size: .93rem; transition: color .2s; }
+.ftr a { color: #ffe3e7; font-size: .93rem; transition: color .2s; }
 .ftr a:hover { color: #fff; }
 .ftr .logo { color: #fff; }
-.ftr__bot { margin-top: 2.6rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,.12); display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; color: #b99aa1; font-size: .85rem; }
+.ftr__bot { margin-top: 2.6rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,.22); display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; color: #ffc3ca; font-size: .85rem; }
 
 /* ---------- Bara CTA lipită jos (mobil, pagina de caz) ---------- */
 .sticky-cta {
@@ -587,3 +604,23 @@ p  { text-wrap: pretty; }
 /* linia albastra de sub eticheta — accentul secundar al brandului */
 .blue-note { color: var(--blue-500); font-weight: 700; }
 .hl-amber { background: linear-gradient(transparent 55%, var(--amber-soft) 55%); padding-inline: .15em; }
+
+/* ---------- Semnătură pe canvas ---------- */
+.sig-pad {
+  position: relative; border: 1.5px dashed var(--border-strong); border-radius: var(--r-md);
+  background: var(--bg); overflow: hidden; touch-action: none;
+}
+.sig-pad canvas { display: block; width: 100%; height: 160px; cursor: crosshair; }
+.sig-pad__hint {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  color: var(--text-mute); font-size: .9rem; pointer-events: none; transition: opacity .25s;
+}
+.sig-pad.has-ink .sig-pad__hint { opacity: 0; }
+.sig-pad.is-required { border-color: var(--err); box-shadow: 0 0 0 4px var(--err-soft); }
+.f230 img.sig { height: 56px; margin-top: .3rem; }
+
+/* la tipărire păstrăm doar zona marcată */
+@media print {
+  body.print-doc *:not(.print-keep):not(.print-keep *) { visibility: hidden !important; }
+  body.print-doc .print-keep { position: absolute; inset: 0; margin: 0; visibility: visible; }
+}
