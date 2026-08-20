@@ -63,6 +63,22 @@ Apoi deschide <http://localhost:8080>.
 3. **Cererile urgente sunt exemple.** Șterge `SOI.CERERI_SEED` sau înlocuiește-l cu date reale.
 4. Verifică textele medicale cu un cadru medical din centrul de transfuzie.
 
+## Copierea unui site existent
+
+`tools/copiaza-site.sh` descarcă un site public complet — HTML, CSS, JavaScript,
+imagini și fonturi — adică designul și funcțiile care rulează în browser.
+
+```bash
+./tools/copiaza-site.sh https://exemplu.ro
+```
+
+Rezultatul e un folder care funcționează offline: îl deschizi cu `index.html`.
+
+Ce nu vine odată cu el: codul de pe server (PHP, baza de date, adminul) și
+conținutul generat de JavaScript după încărcare (React, Vue, Next.js). Pentru
+site-uri de tipul acesta, folosește extensia **SingleFile** din Chrome/Firefox,
+care salvează pagina randată într-un singur fișier `.html`.
+
 ## Licențe
 
 Fontul Plus Jakarta Sans este distribuit sub SIL Open Font License 1.1.
