@@ -35,6 +35,7 @@ SCHEME=$(printf '%s' "$URL" | sed -E 's#^(https?)://.*#\1#')
 HOSTPORT=$(printf '%s' "$URL" | sed -E 's#^https?://##; s#/.*$##')
 HOST=$(printf '%s' "$HOSTPORT" | sed -E 's#:[0-9]+$##')
 ROOT="$SCHEME://$HOSTPORT"
+GAZDA_BAZA=$(printf '%s' "$HOST" | sed -E 's#^www\.##')
 OUT="${OUTARG:-copie-$(printf '%s' "$HOST" | sed -E 's#^www\.##')}"
 
 UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -74,6 +75,14 @@ copiaza_cu_wget() {
 
 url_fara_ancora() {
   printf '%s' "$1" | sed -E 's/#.*$//'
+}
+
+gazda_url() {
+  printf '%s' "$1" | sed -E 's#^https?://##; s#/.*$##; s#:[0-9]+$##; s#^www\.##'
+}
+
+acelasi_domeniu() {
+  [ "$(gazda_url "$1")" = "$GAZDA_BAZA" ]
 }
 
 rezolva() {
@@ -123,6 +132,17 @@ copiaza_cu_curl() {
   echo
   _q="$OUT/.coada"; _v="$OUT/.vazute"
   : > "$_q"; : > "$_v"
+  # daca site-ul redirectioneaza (ex. spre www), pornim de la adresa finala
+  _final=$(curl -sSL -o /dev/null -A "$UA" --max-time 30 -w '%{url_effective}' "$URL" 2>/dev/null)
+  if [ -n "$_final" ] && [ "$_final" != "$URL" ]; then
+    echo "Redirect: $URL -> $_final"
+    URL="$_final"
+    SCHEME=$(printf '%s' "$URL" | sed -E 's#^(https?)://.*#\1#')
+    HOSTPORT=$(printf '%s' "$URL" | sed -E 's#^https?://##; s#/.*$##')
+    ROOT="$SCHEME://$HOSTPORT"
+    echo
+  fi
+
   printf '%s\n' "$(url_fara_ancora "$URL")" >> "$_q"
   _n=0
 
@@ -132,8 +152,10 @@ copiaza_cu_curl() {
     sed -i.bak '1d' "$_q" 2>/dev/null || { tail -n +2 "$_q" > "$_q.t" && mv "$_q.t" "$_q"; }
     rm -f "$_q.bak"
 
-    grep -Fxq "$_u" "$_v" 2>/dev/null && continue
-    printf '%s\n' "$_u" >> "$_v"
+    # cheia de deduplicare e calea locala: "/" si "/index.html" sunt acelasi fisier
+    _rel=$(cale_locala "$_u")
+    grep -Fxq "$_rel" "$_v" 2>/dev/null && continue
+    printf '%s\n' "$_rel" >> "$_v"
 
     _n=$((_n + 1))
     if [ "$_n" -gt "$MAXPAGES" ]; then
@@ -141,7 +163,6 @@ copiaza_cu_curl() {
       break
     fi
 
-    _rel=$(cale_locala "$_u")
     _dst="$OUT/$_rel"
     mkdir -p "$(dirname "$_dst")" 2>/dev/null
 
@@ -152,26 +173,24 @@ copiaza_cu_curl() {
       rm -f "$_dst"
       continue
     fi
-    echo "  [ok] $_rel"
+    _sz=$(wc -c < "$_dst" 2>/dev/null | tr -d ' ')
+    echo "  [ok] $_rel ($_sz octeti)"
 
     case "$_rel" in
       *.html|*.htm)
+        _nl=$(extrage_linkuri "$_dst" | wc -l | tr -d ' ')
+        echo "       $_nl referinte gasite in pagina"
         extrage_linkuri "$_dst" | while IFS= read -r _ref; do
           _abs=$(rezolva "$_u" "$(url_fara_ancora "$_ref")")
           [ -z "$_abs" ] && continue
-          case "$_abs" in
-            "$ROOT"/*|"$ROOT") printf '%s\n' "$_abs" >> "$_q" ;;
-            *) : ;;   # alt domeniu: nu descarcam
-          esac
+          if acelasi_domeniu "$_abs"; then printf '%s\n' "$_abs" >> "$_q"; fi
         done
         ;;
       *.css)
         extrage_din_css "$_dst" | while IFS= read -r _ref; do
           _abs=$(rezolva "$_u" "$(url_fara_ancora "$_ref")")
           [ -z "$_abs" ] && continue
-          case "$_abs" in
-            "$ROOT"/*) printf '%s\n' "$_abs" >> "$_q" ;;
-          esac
+          if acelasi_domeniu "$_abs"; then printf '%s\n' "$_abs" >> "$_q"; fi
         done
         ;;
     esac
